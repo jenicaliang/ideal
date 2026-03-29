@@ -31,28 +31,28 @@ export default function BreakingNews() {
   if (hidden) return (
     <div style={{
       position: 'absolute',
-      bottom: '28px',
+      bottom: '2.9vh',
       left: '20vw',
       right: 0,
-      height: '30px',
+      height: '3.2vh',
       backgroundColor: 'var(--red)',
       zIndex: 20,
       display: 'flex',
       alignItems: 'center',
-      padding: '0 10px',
+      padding: '0 0.78vw',
       justifyContent: 'space-between',
     }}>
       <span style={{
         color: 'var(--yellow)',
         fontFamily: 'Arial Narrow, Arial, sans-serif',
-        fontSize: '20px',
+        fontSize: 'clamp(15px, 1vw, 32px)',
       }}>
         BREAKING NEWS
       </span>
       <span style={{
         color: 'var(--yellow)',
         fontFamily: 'var(--font-mono)',
-        fontSize: '12px',
+        fontSize: 'clamp(12px, 0.9vw, 18px)',
       }}>
         returning in {countdown}s
       </span>
@@ -62,7 +62,7 @@ export default function BreakingNews() {
   return (
     <div style={{
       position: 'absolute',
-      bottom: '28px',
+      bottom: '2.9vh',
       left: '20vw',
       right: 0,
       zIndex: 20,
@@ -70,16 +70,16 @@ export default function BreakingNews() {
       {/* Top bar */}
       <div style={{
         backgroundColor: 'var(--red)',
-        height: '30px',
+        height: '3.2vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '0 10px',
+        padding: '0 0.78vw',
       }}>
         <span style={{
           color: 'var(--yellow)',
           fontFamily: 'Arial Narrow, Arial, sans-serif',
-          fontSize: '22px',
+          fontSize: 'clamp(16px, 1.5vw, 32px)',
         }}>
           BREAKING NEWS
         </span>
@@ -90,7 +90,7 @@ export default function BreakingNews() {
             border: 'none',
             color: 'var(--yellow)',
             fontFamily: 'Arial Narrow, Arial, sans-serif',
-            fontSize: '22px',
+            fontSize: 'clamp(16px, 1.5vw, 32px)',
             cursor: 'pointer',
             textDecoration: 'underline',
           }}
@@ -102,14 +102,14 @@ export default function BreakingNews() {
       {/* Scrolling headline */}
       <div style={{
         backgroundColor: 'var(--black)',
-        height: '60px',
+        height: '6vh',
         display: 'flex',
         alignItems: 'center',
         overflow: 'hidden',
       }}>
         <div style={{
           display: 'flex',
-          gap: '120px',
+          gap: '9.375vw',        /* 120 * 1.111 / 1280 * 100 */
           animation: 'ticker 30s linear infinite',
           whiteSpace: 'nowrap',
         }}>
@@ -117,7 +117,7 @@ export default function BreakingNews() {
             <span key={i} style={{
               color: 'var(--red)',
               fontFamily: 'Arial Narrow, Arial, sans-serif',
-              fontSize: '50px',
+              fontSize: 'clamp(22px, 3.3vw, 72px)',   /* 50 * 1.111 / 1280 * 100 */
               letterSpacing: '0.08em',
             }}>
               {h}

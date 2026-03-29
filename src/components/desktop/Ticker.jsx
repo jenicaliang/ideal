@@ -13,7 +13,7 @@ export default function Ticker() {
   useEffect(() => {
     if (innerRef.current) {
       const width = innerRef.current.scrollWidth / 2
-      const speed = 150 // pixels per second, adjust for faster/slower
+      const speed = 150
       setDuration(width / speed)
     }
   }, [])
@@ -23,8 +23,8 @@ export default function Ticker() {
       position: 'absolute',
       top: 0,
       left: 0,
-      right: 0,
-      height: '120px',
+      width: '100vw',
+      height: '12vh',              /* 120 * 1.111 / 800 * 100 */
       background: 'linear-gradient(to bottom, var(--magenta) 0%, var(--magenta) 60%, var(--purple) 100%)',
       borderTop: '3px solid var(--yellow)',
       borderBottom: '1px solid var(--teal-deep)',
@@ -39,7 +39,7 @@ export default function Ticker() {
         ref={innerRef}
         style={{
           display: 'flex',
-          gap: '80px',
+          gap: '6.25vw',           /* 80 * 1.111 / 1280 * 100 */
           animation: `ticker ${duration}s linear infinite`,
           whiteSpace: 'nowrap',
         }}
@@ -48,7 +48,7 @@ export default function Ticker() {
           <span key={i} style={{
             color: 'var(--yellow)',
             fontFamily: 'Arial Narrow, Arial, sans-serif',
-            fontSize: '110px',
+            fontSize: 'clamp(60px, 7.2vw, 160px)',   /* 110 * 1.111 / 1280 * 100 */
             fontWeight: '300',
             letterSpacing: '0.08em',
             fontStretch: 'condensed',

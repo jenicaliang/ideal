@@ -1,32 +1,40 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 
-export default function StickyNote({ title, items, error, initialX = 300, initialY = 200, fontSize = '12px', zIndex = 20, onFocus }) {
-  const [pos, setPos] = useState({ x: initialX, y: initialY })
+export default function StickyNote({ title, items, error, initialX = 0.3, initialY = 0.25, fontSize = 'clamp(15px, 1.2vw, 24px)', zIndex = 20, onFocus }) {
+  const [pos, setPos] = useState({ 
+    x: initialX * window.innerWidth, 
+    y: initialY * window.innerHeight 
+  })
   const [flash, setFlash] = useState(false)
   const dragOffset = useRef(null)
+  const onMouseMoveRef = useRef(null)
+  const onMouseUpRef = useRef(null)
 
-  const onMouseDown = (e) => {
+  const onMouseUp = useCallback(() => {
+    dragOffset.current = null
+    window.removeEventListener('mousemove', onMouseMoveRef.current)
+    window.removeEventListener('mouseup', onMouseUpRef.current)
+  }, [])
+
+  const onMouseMove = useCallback((e) => {
+    setPos({
+      x: e.clientX - dragOffset.current.x,
+      y: e.clientY - dragOffset.current.y,
+    })
+  }, [])
+
+  onMouseMoveRef.current = onMouseMove
+  onMouseUpRef.current = onMouseUp
+
+  const onMouseDown = useCallback((e) => {
     if (onFocus) onFocus()
     dragOffset.current = {
       x: e.clientX - pos.x,
       y: e.clientY - pos.y,
     }
-    window.addEventListener('mousemove', onMouseMove)
-    window.addEventListener('mouseup', onMouseUp)
-  }
-
-  const onMouseMove = (e) => {
-    setPos({
-      x: e.clientX - dragOffset.current.x,
-      y: e.clientY - dragOffset.current.y,
-    })
-  }
-
-  const onMouseUp = () => {
-    dragOffset.current = null
-    window.removeEventListener('mousemove', onMouseMove)
-    window.removeEventListener('mouseup', onMouseUp)
-  }
+    window.addEventListener('mousemove', onMouseMoveRef.current)
+    window.addEventListener('mouseup', onMouseUpRef.current)
+  }, [pos, onFocus])
 
   const onClose = () => {
     setFlash(true)
@@ -50,7 +58,7 @@ export default function StickyNote({ title, items, error, initialX = 300, initia
         onMouseDown={onMouseDown}
         style={{
           backgroundColor: 'var(--teal-deep)',
-          padding: '5px 17px',
+          padding: 'clamp(3px, 0.5vw, 7px) clamp(10px, 1vw, 24px)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -60,7 +68,7 @@ export default function StickyNote({ title, items, error, initialX = 300, initia
         <span style={{
           color: 'var(--teal-bright)',
           fontFamily: 'Arial Narrow, Arial, sans-serif',
-          fontSize: '20px',
+          fontSize: 'clamp(16px, 1.5vw, 32px)',
           fontWeight: '700',
           letterSpacing: '0.05em',
         }}>
@@ -73,7 +81,7 @@ export default function StickyNote({ title, items, error, initialX = 300, initia
             border: 'none',
             color: 'var(--yellow)',
             cursor: 'pointer',
-            fontSize: '20px',
+            fontSize: 'clamp(16px, 1.5vw, 32px)',
             padding: '0 2px',
           }}
         >
@@ -82,39 +90,39 @@ export default function StickyNote({ title, items, error, initialX = 300, initia
       </div>
 
       {/* Content */}
-      <div style={{ padding: '15px 17px' }}>
+      <div style={{ padding: 'clamp(10px, 1.3vw, 22px) clamp(12px, 1.48vw, 24px)' }}>
         {items.map((item, i) => (
-            item === '' 
-                ? <div key={i} style={{ height: '15px' }} />
-                : <div key={i} style={{
-                    fontFamily: 'var(--font-os)',
-                    fontSize: fontSize,
-                    lineHeight: '1.2',
-                    color: 'var(--black)',
-                    marginBottom: '4px',
-        }}>
-            {item}
-      </div>
-))}
+          item === ''
+            ? <div key={i} style={{ height: '1.875vh' }} />
+            : <div key={i} style={{
+                fontFamily: 'var(--font-os)',
+                fontSize: fontSize,
+                lineHeight: '1.2',
+                color: 'var(--black)',
+                marginBottom: 'clamp(2px, 0.35vw, 6px)',
+              }}>
+                {item}
+              </div>
+        ))}
       </div>
 
       {/* Pinned flash message */}
       {flash && (
-        <div style={{
-          position: 'absolute',
-          bottom: '-27px',
-          left: 0,
-          right: 0,
-          backgroundColor: 'var(--red)',
-          color: 'var(--yellow)',
-          fontFamily: 'var(--font-mono)',
-          fontSize: '15px',
-          padding: '4px 8px',
-          textAlign: 'center',
-        }}>
-          {error}
-        </div>
-      )}
+  <div style={{
+    position: 'absolute',
+    top: '101%',
+    left: 0,
+    right: 0,
+    backgroundColor: 'var(--red)',
+    color: 'var(--yellow)',
+    fontFamily: 'var(--font-mono)',
+    fontSize: 'clamp(15px, 1vw, 24px)',
+    padding: 'clamp(3px, 0.35vw, 6px) clamp(6px, 0.69vw, 12px)',
+    textAlign: 'center',
+  }}>
+    {error}
+  </div>
+)}
     </div>
   )
 }

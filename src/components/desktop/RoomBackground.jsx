@@ -6,7 +6,7 @@ export default function RoomBackground() {
         zIndex: 0,
       }}>
         <img
-          src="/surveillance.png"
+          src="/surveillance.webp"
           alt=""
           style={{
             width: '100%',

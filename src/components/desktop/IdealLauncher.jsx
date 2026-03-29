@@ -135,26 +135,26 @@ export default function IdealLauncher({ onAccept, onDecline }) {
   const titleBarStyle = {
     backgroundColor: 'var(--teal-deep)',
     borderBottom: '2px solid var(--teal-bright)',
-    padding: '6px 12px',
+    padding: 'clamp(4px, 0.52vw, 9px) clamp(8px, 0.94vw, 16px)',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
   }
 
-  const bodyStyle = {
-    backgroundColor: 'var(--black)',
-    padding: '24px',
-  }
-
   const btnStyle = {
     flex: 1,
-    padding: '8px',
+    padding: 'clamp(6px, 0.69vw, 12px)',
     fontFamily: 'Arial Narrow, Arial, sans-serif',
-    fontSize: '20px',
+    fontSize: 'clamp(16px, 1.5vw, 32px)',
     fontWeight: '700',
     letterSpacing: '0.08em',
     cursor: 'pointer',
     border: '1px solid var(--teal-bright)',
+  }
+
+  const bodyStyle = {
+    backgroundColor: 'var(--black)',
+    padding: 'clamp(16px, 2.08vw, 34px)',
   }
 
   return (
@@ -162,13 +162,13 @@ export default function IdealLauncher({ onAccept, onDecline }) {
       {showGlitch && <GlitchOverlay onDone={handleGlitchDone} />}
 
       {showBlack && (
-  <div style={{
-    position: 'fixed',
-    inset: 0,
-    zIndex: 450,
-    backgroundColor: 'var(--black)',
-  }} />
-)}
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 450,
+          backgroundColor: 'var(--black)',
+        }} />
+      )}
 
       {/* Desktop icon */}
       {showIcon && phase !== 'popup' && phase !== 'remember' && (
@@ -176,20 +176,20 @@ export default function IdealLauncher({ onAccept, onDecline }) {
           onClick={handleIconClick}
           style={{
             position: 'absolute',
-            top: '450px',
-            right: '500px',
+            top: '45vh',         
+            right: '40vh',        
             zIndex: 50,
             cursor: 'pointer',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '4px',
+            gap: '0.5vh',
             userSelect: 'none',
           }}
         >
           <div style={{
-            width: '45px',
-            height: '45px',
+            width: 'clamp(36px, 4vw, 64px)',   
+            height: 'clamp(36px, 4vw, 64px)',
             backgroundColor: 'var(--teal-deep)',
             border: '2px solid var(--teal-bright)',
             display: 'flex',
@@ -197,7 +197,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
             justifyContent: 'center',
             color: 'var(--green)',
             fontFamily: 'var(--font-mono)',
-            fontSize: '12px',
+            fontSize: 'clamp(15px, 1vw, 18px)',
             fontWeight: '700',
           }}>
             ID
@@ -205,10 +205,10 @@ export default function IdealLauncher({ onAccept, onDecline }) {
           <span style={{
             color: 'var(--white)',
             fontFamily: 'var(--font-mono)',
-            fontSize: '12px',
+            fontSize: 'clamp(12px, 0.9vw, 18px)',
             textAlign: 'center',
             backgroundColor: 'rgba(0,0,0,0.8)',
-            padding: '1px 4px',
+            padding: '1px 0.31vw',
           }}>
             IDEAL_LAUNCHER
           </span>
@@ -227,30 +227,30 @@ export default function IdealLauncher({ onAccept, onDecline }) {
           backgroundColor: 'rgba(0,0,0,0.85)',
         }}>
           <div style={{
-            width: '400px',
+            width: 'clamp(300px, 34.7vw, 560px)',   /* 400 * 1.111 / 1280 * 100 */
             backgroundColor: 'var(--black)',
             border: '2px solid var(--teal-bright)',
-            padding: '32px',
+            padding: 'clamp(20px, 2.78vw, 44px)',
             textAlign: 'center',
           }}>
             <p style={{
               color: 'var(--white)',
               fontFamily: 'Arial Narrow, Arial, sans-serif',
-              fontSize: '20px',
+              fontSize: 'clamp(16px, 1.75vw, 32px)',
               fontWeight: '700',
               letterSpacing: '0.05em',
-              marginBottom: '16px',
+              marginBottom: 'clamp(10px, 1.39vw, 22px)',
             }}>
-              that's ok.
+              That's ok.
             </p>
             <p style={{
               color: 'var(--grey-light)',
               fontFamily: 'var(--font-mono)',
-              fontSize: '13px',
+              fontSize: 'clamp(15px, 1.2vw, 24px)',
               lineHeight: '1.8',
-              marginBottom: '28px',
+              marginBottom: 'clamp(18px, 2.43vw, 40px)',
             }}>
-              we'll always be here when you're ready. IDEAL will remain on your desktop — just in case.
+              Take your time. IDEAL will remain on your desktop, for when you're ready.
             </p>
             <button
               onClick={handleUnderstand}
@@ -279,7 +279,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
           backgroundColor: 'rgba(0,0,0,0.6)',
         }}>
           <div style={{
-            width: '600px',
+            width: 'clamp(350px, 37vw, 800px)',  
             border: '2px solid var(--teal-bright)',
             boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
             animation: 'fadeIn 0.3s ease',
@@ -288,7 +288,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
               <span style={{
                 color: 'var(--teal-bright)',
                 fontFamily: 'Arial Narrow, Arial, sans-serif',
-                fontSize: '15px',
+                fontSize: 'clamp(12px, 0.9vw, 18px)',
                 fontWeight: '700',
                 letterSpacing: '0.1em',
               }}>
@@ -298,7 +298,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
                 onClick={handleNo}
                 style={{
                   color: 'var(--yellow)',
-                  fontSize: '15px',
+                  fontSize: 'clamp(12px, 0.9vw, 18px)',
                   fontWeight: '700',
                   cursor: 'pointer',
                 }}
@@ -309,28 +309,28 @@ export default function IdealLauncher({ onAccept, onDecline }) {
             <div style={bodyStyle}>
               <div style={{
                 borderBottom: '1px solid var(--teal-deep)',
-                paddingBottom: '16px',
-                marginBottom: '16px',
+                paddingBottom: 'clamp(10px, 1.39vw, 22px)',
+                marginBottom: 'clamp(10px, 1.39vw, 22px)',
               }}>
                 <p style={{
                   color: 'var(--white)',
                   fontFamily: 'Arial Narrow, Arial, sans-serif',
-                  fontSize: '25px',
+                  fontSize: 'clamp(16px, 1.75vw, 32px)',
                   fontWeight: '700',
                   letterSpacing: '0.05em',
-                  marginBottom: '20px',
+                  marginBottom: 'clamp(14px, 1.74vw, 28px)',
                 }}>
                   Do you want to allow this app to make changes to your device?
                 </p>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '15px',
-                  marginBottom: '12px',
+                  gap: 'clamp(10px, 1.3vw, 22px)',
+                  marginBottom: 'clamp(8px, 1.04vw, 18px)',
                 }}>
                   <div style={{
-                    width: '45px',
-                    height: '45px',
+                    width: 'clamp(36px, 3.9vw, 64px)',
+                    height: 'clamp(36px, 3.9vw, 64px)',
                     backgroundColor: 'var(--teal-deep)',
                     border: '1px solid var(--teal-bright)',
                     display: 'flex',
@@ -338,7 +338,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
                     justifyContent: 'center',
                     color: 'var(--green)',
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '15px',
+                    fontSize: 'clamp(12px, 0.9vw, 18px)',
                     fontWeight: '700',
                     flexShrink: 0,
                   }}>
@@ -348,7 +348,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
                     <div style={{
                       color: 'var(--white)',
                       fontFamily: 'Arial Narrow, Arial, sans-serif',
-                      fontSize: '15px',
+                      fontSize: 'clamp(15px, 1vw, 24px)',
                       fontWeight: '700',
                       letterSpacing: '0.05em',
                     }}>
@@ -357,22 +357,22 @@ export default function IdealLauncher({ onAccept, onDecline }) {
                     <div style={{
                       color: 'var(--grey)',
                       fontFamily: 'var(--font-mono)',
-                      fontSize: '12px',
-                      marginTop: '6px',
+                      fontSize: 'clamp(12px, 0.9vw, 18px)',
+                      marginTop: 'clamp(4px, 0.52vw, 9px)',
                     }}>
                       Publisher: IDEAL Systems Inc.
                     </div>
                     <div style={{
                       color: 'var(--grey)',
                       fontFamily: 'var(--font-mono)',
-                      fontSize: '12px',
+                      fontSize: 'clamp(12px, 0.9vw, 18px)',
                     }}>
                       File origin: Unknown
                     </div>
                   </div>
                 </div>
               </div>
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', gap: 'clamp(6px, 0.69vw, 12px)', marginBottom: 'clamp(10px, 1.39vw, 22px)' }}>
                 <button
                   onClick={handleOk}
                   style={{
@@ -400,7 +400,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
                   style={{
                     color: 'var(--grey)',
                     fontFamily: 'var(--font-mono)',
-                    fontSize: '12px',
+                    fontSize: 'clamp(12px, 0.9vw, 18px)',
                     textDecoration: 'underline',
                     cursor: 'pointer',
                   }}
@@ -425,7 +425,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
           backgroundColor: 'rgba(0,0,0,0.6)',
         }}>
           <div style={{
-            width: '600px',
+            width: 'clamp(400px, 52.1vw, 800px)',
             border: '2px solid var(--teal-bright)',
             boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
             animation: 'fadeIn 0.3s ease',
@@ -434,7 +434,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
               <span style={{
                 color: 'var(--teal-bright)',
                 fontFamily: 'Arial Narrow, Arial, sans-serif',
-                fontSize: '15px',
+                fontSize: 'clamp(12px, 1vw, 18px)',
                 fontWeight: '700',
                 letterSpacing: '0.1em',
               }}>
@@ -444,7 +444,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
                 onClick={handleNo}
                 style={{
                   color: 'var(--yellow)',
-                  fontSize: '15px',
+                  fontSize: 'clamp(12px, 1vw, 18px)',
                   fontWeight: '700',
                   cursor: 'pointer',
                 }}
@@ -456,32 +456,32 @@ export default function IdealLauncher({ onAccept, onDecline }) {
               <p style={{
                 color: 'var(--white)',
                 fontFamily: 'Arial Narrow, Arial, sans-serif',
-                fontSize: '20px',
+                fontSize: 'clamp(16px, 1.75vw, 32px)',
                 fontWeight: '700',
                 letterSpacing: '0.05em',
-                marginBottom: '12px',
+                marginBottom: 'clamp(8px, 1.04vw, 18px)',
               }}>
                 You've been selected as a beta tester.
               </p>
               <p style={{
                 color: 'var(--grey-light)',
                 fontFamily: 'var(--font-mono)',
-                fontSize: '15px',
+                fontSize: 'clamp(15px, 1.2vw, 24px)',
                 lineHeight: '1.7',
-                marginBottom: '20px',
+                marginBottom: 'clamp(15px, 1vw, 28px)',
               }}>
                 IDEAL was automatically installed on your device as part of a limited beta program. You were chosen based on behavior patterns.
               </p>
               <p style={{
                 color: 'var(--grey-light)',
                 fontFamily: 'var(--font-mono)',
-                fontSize: '15px',
+                fontSize: 'clamp(15px, 1.2vw, 24px)',
                 lineHeight: '1.7',
-                marginBottom: '20px',
+                marginBottom: 'clamp(15px, 1vw, 28px)',
               }}>
                 Would you like to continue to the onboarding experience?
               </p>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: 'clamp(6px, 0.69vw, 12px)' }}>
                 <button
                   onClick={handleOk}
                   style={{

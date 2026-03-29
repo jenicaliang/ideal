@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 
 export default function AboutWindow({ onClose }) {
-  const [pos, setPos] = useState({ x: window.innerWidth / 2 - 200, y: window.innerHeight / 2 - 150 })
+  const [pos, setPos] = useState({ x: window.innerWidth / 2 - window.innerWidth * 0.156, y: window.innerHeight / 2 - window.innerHeight * 0.187 })
   const dragOffset = useRef(null)
 
   const onMouseDown = (e) => {
@@ -25,7 +25,7 @@ export default function AboutWindow({ onClose }) {
       position: 'absolute',
       left: pos.x,
       top: pos.y,
-      width: '400px',
+      width: 'clamp(300px, 35vw, 450px)',      /* 400 * 1.111 / 1280 * 100 */
       zIndex: 200,
       userSelect: 'none',
     }}>
@@ -37,7 +37,7 @@ export default function AboutWindow({ onClose }) {
           borderTop: '2px solid var(--teal-bright)',
           borderLeft: '2px solid var(--teal-bright)',
           borderRight: '2px solid var(--teal-bright)',
-          padding: '4px 10px',
+          padding: 'clamp(3px, 0.35vh, 6px) clamp(8px, 0.87vw, 14px)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -47,7 +47,7 @@ export default function AboutWindow({ onClose }) {
         <span style={{
           color: 'var(--teal-bright)',
           fontFamily: 'Arial Narrow, Arial, sans-serif',
-          fontSize: '20px',
+          fontSize: 'clamp(14px, 1.74vw, 26px)',   /* 20 * 1.111 / 1280 * 100 */
           fontWeight: '700',
           letterSpacing: '0.08em',
         }}>
@@ -60,7 +60,7 @@ export default function AboutWindow({ onClose }) {
             border: 'none',
             color: 'var(--yellow)',
             cursor: 'pointer',
-            fontSize: '20px',
+            fontSize: 'clamp(14px, 1.74vw, 26px)',
           }}
         >
           X
@@ -71,25 +71,25 @@ export default function AboutWindow({ onClose }) {
       <div style={{
         backgroundColor: 'var(--black)',
         border: '2px solid var(--teal-bright)',
-        padding: '20px',
+        padding: 'clamp(14px, 1.74vw, 26px)',      /* 20 * 1.111 / 1280 * 100 */
       }}>
         <p style={{
           color: 'var(--teal-bright)',
           fontFamily: 'var(--font-mono)',
-          fontSize: '15px',
+          fontSize: 'clamp(15px, 1.2vw, 20px)',    /* 15 * 1.111 / 1280 * 100 */
           lineHeight: '1.8',
-          marginBottom: '16px',
+          marginBottom: 'clamp(10px, 1.39vw, 22px)',
         }}>
           IDEAL is a speculative design project exploring how algorithmic optimization erodes personal agency.
         </p>
         <p style={{
           color: 'rgba(0,255,224,0.5)',
           fontFamily: 'var(--font-mono)',
-          fontSize: '12px',
+          fontSize: 'clamp(12px, 0.9vw, 16px)',    /* 12 * 1.111 / 1280 * 100 */
           lineHeight: '1.8',
         }}>
-          Created by Jenica Liang · 2026<br />
-          Built with React + Vite<br />
+          Created by Jenica Liang / 2026<br />
+          Built with React + Vite.<br />
           All data is fictional.
         </p>
       </div>

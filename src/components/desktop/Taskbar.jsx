@@ -19,8 +19,8 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
     border: 'none',
     color: 'var(--teal-deep)',
     fontFamily: 'Arial Narrow, Arial, sans-serif',
-    fontSize: '15px',
-    padding: '0 15px',
+    fontSize: 'clamp(12px, 0.9vw, 18px)',
+    padding: '0 1vw',      
     cursor: 'pointer',
     height: '100%',
     display: 'flex',
@@ -34,7 +34,7 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
       position: 'absolute',
       bottom: 0,
       right: 0,
-      height: '28px',
+      height: '3.3vh',         
       backgroundColor: 'var(--teal-deep)',
       borderTop: '2px solid var(--teal-bright)',
       zIndex: 20,
@@ -53,11 +53,10 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
           borderRadius: '0 12px 12px 0',
           color: 'var(--yellow)',
           fontFamily: 'Arial Narrow, Arial, sans-serif',
-          fontSize: '20px',
+          fontSize: 'clamp(16px, 1.5vw, 32px)',
           fontWeight: '700',
           letterSpacing: '0.08em',
-          padding: '0 16px',
-          paddingLeft: '10px',
+          padding: '0 1.39vw 0 0.78vw',
           cursor: 'pointer',
           height: '100%',
           flexShrink: 0,
@@ -71,8 +70,8 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
         flex: 1,
         display: 'flex',
         alignItems: 'center',
-        padding: '0 8px',
-        gap: '4px',
+        padding: '0 0.625vw',
+        gap: '0.31vw',
       }}>
         {idealActive && (
           <div style={{
@@ -80,11 +79,11 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
             border: '1px solid var(--teal-bright)',
             color: 'var(--teal-bright)',
             fontFamily: 'Arial Narrow, Arial, sans-serif',
-            fontSize: '11px',
+            fontSize: 'clamp(12px, 1vw, 18px)',
             fontWeight: '700',
             letterSpacing: '0.08em',
-            padding: '2px 16px',
-            height: '20px',
+            padding: '2px 1.39vw',
+            height: '2.5vh',
             display: 'flex',
             alignItems: 'center',
           }}>
@@ -93,7 +92,7 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
         )}
       </div>
 
-      {/* Right — system tray area in teal-bright */}
+      {/* Right — system tray area */}
       <div style={{
         backgroundColor: 'var(--teal-bright)',
         display: 'flex',
@@ -111,14 +110,14 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
           {hovering === 'restart' && (
             <div style={{
               position: 'absolute',
-              bottom: '30px',
+              bottom: '3.75vh',      
               left: '50%',
               transform: 'translateX(-50%)',
               backgroundColor: 'var(--black)',
               color: 'var(--teal-bright)',
               fontFamily: 'var(--font-mono)',
-              fontSize: '15px',
-              padding: '3px 6px',
+              fontSize: 'clamp(12px, 1vw, 18px)',
+              padding: 'clamp(2px, 0.26vw, 5px) clamp(4px, 0.52vw, 9px)',
               whiteSpace: 'nowrap',
               pointerEvents: 'none',
               border: '2px solid var(--teal-deep)',
@@ -133,22 +132,20 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
           onClick={onMonochrome}
           onMouseEnter={() => setHovering('mono')}
           onMouseLeave={() => setHovering(null)}
-          style={{
-            ...iconBtnStyle('mono'),
-          }}
+          style={iconBtnStyle('mono')}
         >
           ◑
           {hovering === 'mono' && (
             <div style={{
               position: 'absolute',
-              bottom: '30px',
+              bottom: '3.75vh',
               left: '50%',
               transform: 'translateX(-50%)',
               backgroundColor: 'var(--black)',
               color: 'var(--teal-bright)',
               fontFamily: 'var(--font-mono)',
-              fontSize: '15px',
-              padding: '3px 6px',
+              fontSize: 'clamp(12px, 1vw, 18px)',
+              padding: 'clamp(2px, 0.26vw, 5px) clamp(4px, 0.52vw, 9px)',
               whiteSpace: 'nowrap',
               pointerEvents: 'none',
               border: '2px solid var(--teal-deep)',
@@ -162,10 +159,10 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          padding: '0 10px',
+          padding: '0 0.78vw',
           color: 'var(--teal-deep)',
           fontFamily: 'var(--font-mono)',
-          fontSize: '15px',
+          fontSize: 'clamp(12px, 1vw, 18px)',
           fontWeight: '700',
         }}>
           {time}

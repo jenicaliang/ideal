@@ -3,7 +3,6 @@ import Taskbar from '../components/desktop/Taskbar'
 import AboutWindow from '../components/desktop/AboutWindow'
 import RoomBackground from '../components/desktop/RoomBackground'
 import Ticker from '../components/desktop/Ticker'
-import DateDisplay from '../components/desktop/DateDisplay'
 import StickyNote from '../components/desktop/StickyNote'
 import MoodSelector from '../components/desktop/MoodSelector'
 import CameraLog from '../components/desktop/CameraLog'
@@ -30,9 +29,9 @@ export default function Desktop({ onLaunchIdeal, isMonochrome, onMonochrome, sho
       <Ticker />
       <StickyNote
         title="TO-DO LIST"
-        initialX={380}
-        initialY={380}
-        fontSize='17px'
+        initialX={0.26}   
+        initialY={0.35} 
+  fontSize='clamp(15px, 1vw, 24px)'
         zIndex={topNote === 'todo' ? 30 : 20}
         onFocus={() => setTopNote('todo')}
         items={[
@@ -53,9 +52,9 @@ export default function Desktop({ onLaunchIdeal, isMonochrome, onMonochrome, sho
       />
       <StickyNote
         title="!!!"
-        initialX={590}
-        initialY={250}
-        fontSize='25px'
+        initialX={0.37}   
+        initialY={0.22} 
+  fontSize='clamp(16px, 1.5vw, 32px)'
         zIndex={topNote === 'affirmation' ? 30 : 20}
         onFocus={() => setTopNote('affirmation')}
         items={[
@@ -72,8 +71,8 @@ export default function Desktop({ onLaunchIdeal, isMonochrome, onMonochrome, sho
       <ColorScroller />
       <MusicPlayer />
       <LiveIndicator />
-      <HabitTracker x={0} y={122} />
-      <NoteToSelf x={970} y={650} />
+      <HabitTracker />
+      <NoteToSelf />
       <Taskbar
         isMonochrome={isMonochrome}
         onMonochrome={onMonochrome}

@@ -111,7 +111,6 @@ const generateCard = (totalScrolled, lastWasNew, unlockedNames) => {
 
   const pool = PHASES[phaseIndex]
 
-  // if last was new, force a known card
   if (lastWasNew) {
     const known = pool.filter(c => unlockedNames.has(c.name))
     if (known.length > 0) {
@@ -162,11 +161,11 @@ function Card({ card, offset }) {
     }}>
       <div style={{
         position: 'absolute',
-        bottom: '20px',
-        left: '16px',
+        bottom: '2.5vh',
+        left: '1.25vw',
         color: card.text,
         fontFamily: 'Arial Narrow, Arial, sans-serif',
-        fontSize: '20px',
+        fontSize: 'clamp(16px, 1.74vw, 32px)',
         fontWeight: '700',
         letterSpacing: '0.1em',
         textTransform: 'uppercase',
@@ -195,7 +194,7 @@ export default function ColorScroller() {
     if (card.isNew) {
       unlockedRef.current.add(card.name)
       setUnlockedCount(unlockedRef.current.size)
-    } 
+    }
     lastWasNewRef.current = card.isNew
     setCards(prev => [...prev, card])
     return card
@@ -213,12 +212,10 @@ export default function ColorScroller() {
       lastScroll.current = now
       const next = current + 1
 
-      // ensure card exists at next index
       if (next >= cards.length) {
         appendCard(next)
       }
 
-      // check landing card for new color
       const landingCard = cards[next]
       if (landingCard?.isNew) {
         playDing()
@@ -229,7 +226,6 @@ export default function ColorScroller() {
       setCurrent(next)
       setTotalScrolled(t => t + 1)
 
-      // pre-generate one ahead
       if (next >= cards.length - 1) {
         appendCard(next + 1)
       }
@@ -247,8 +243,8 @@ export default function ColorScroller() {
   return (
     <div style={{
       position: 'absolute',
-      bottom: '0px',
-      left: '0px',
+      bottom: 0,
+      left: 0,
       zIndex: 20,
       userSelect: 'none',
     }}>
@@ -258,7 +254,7 @@ export default function ColorScroller() {
         onMouseLeave={() => setHovering(false)}
         style={{
           width: '20vw',
-          height: '550px',
+          height: '55vh',
           backgroundColor: '#111',
           borderTop: '3px solid var(--teal-deep)',
           borderRight: '3px solid var(--teal-deep)',
@@ -276,58 +272,58 @@ export default function ColorScroller() {
         })}
 
         {/* Total scrolled — top left */}
-<div style={{
-  position: 'absolute',
-  top: '10px',
-  left: '10px',
-  color: cards[current]?.text || '#ffffff',
-  fontFamily: 'var(--font-mono)',
-  fontSize: '12px',
-  zIndex: 10,
-  pointerEvents: 'none',
-  transition: 'color 0.4s',
-}}>
-  {totalScrolled} scrolled
-</div>
+        <div style={{
+          position: 'absolute',
+          top: '1.25vh',
+          left: '0.78vw',
+          color: cards[current]?.text || '#ffffff',
+          fontFamily: 'var(--font-mono)',
+          fontSize: 'clamp(12px, 0.9vw, 18px)',
+          zIndex: 10,
+          pointerEvents: 'none',
+          transition: 'color 0.4s',
+        }}>
+          {totalScrolled} scrolled
+        </div>
 
-{/* Unique unlocked — top right */}
-<div style={{
-  position: 'absolute',
-  top: '10px',
-  right: '10px',
-  color: cards[current]?.text || '#ffffff',
-  fontFamily: 'var(--font-mono)',
-  fontSize: '12px',
-  zIndex: 10,
-  pointerEvents: 'none',
-  transition: 'color 0.4s',
-}}>
-  {unlockedCount} unlocked
-</div>
+        {/* Unique unlocked — top right */}
+        <div style={{
+          position: 'absolute',
+          top: '1.25vh',
+          right: '0.78vw',
+          color: cards[current]?.text || '#ffffff',
+          fontFamily: 'var(--font-mono)',
+          fontSize: 'clamp(12px, 0.9vw, 18px)',
+          zIndex: 10,
+          pointerEvents: 'none',
+          transition: 'color 0.4s',
+        }}>
+          {unlockedCount} unlocked
+        </div>
 
         {popup && (
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(0,0,0,0.85)',
-            border: '1px solid var(--green)',
-            color: 'var(--green)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '15px',
-            padding: '8px 14px',
-            textAlign: 'center',
-            zIndex: 20,
-            pointerEvents: 'none',
-            whiteSpace: 'nowrap',
-          }}>
-            new color unlocked<br />
-            <span style={{ fontSize: '14px', fontWeight: '700', letterSpacing: '0.1em' }}>
-              {popup.toUpperCase()}
-            </span>
-          </div>
-        )}
+  <div style={{
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 'max-content',
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    border: '1px solid var(--green)',
+    color: 'var(--green)',
+    fontFamily: 'var(--font-mono)',
+    fontSize: 'clamp(15px, 1vw, 24px)',
+    padding: 'clamp(6px, 0.625vw, 10px) clamp(10px, 1.09vw, 18px)',
+    textAlign: 'center',
+    zIndex: 20,
+    pointerEvents: 'none',
+  }}>
+    new color unlocked<br />
+    <span style={{ fontSize: 'clamp(12px, 0.9vw, 18px)', fontWeight: '700', letterSpacing: '0.1em' }}>
+      {popup.toUpperCase()}
+    </span>
+  </div>
+)}
       </div>
     </div>
   )

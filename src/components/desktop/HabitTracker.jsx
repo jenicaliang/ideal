@@ -9,11 +9,6 @@ const HABITS = [
       color: 'var(--purple)',
       days: [1,1,1,1,0,0,1,1,1,0,0,0,1,1,1,1,1,0,0,1,1,0,0,0,0,1,0,0],
     },
-    {
-      name: '7HRS SLEEP',
-      color: 'var(--magenta)',
-      days: [0,1,1,0,1,0,0,0,0,1,1,0,0,0,0,0,1,1,1,0,0,0,0,1,1,0,0,0],
-    },
   ]
   
   const getCurrentStreak = (days) => {
@@ -39,31 +34,30 @@ const HABITS = [
     return longest
   }
   
-  export default function HabitTracker({ x = 900, y = 400 }) {
+  export default function HabitTracker() {
     return (
       <div style={{
         position: 'absolute',
-        left: x,
-        top: y,
+        left: 0,
+        top: '12.2vh',          
         width: '20vw',
-        height: '328px',
+        height: '32.8vh',        
         backgroundColor: 'var(--black)',
         borderRight: '3px solid var(--teal-deep)',
-        padding: '10px',
-        paddingTop: '10px',
+        padding: 'clamp(8px, 0.87vw, 14px)',
         zIndex: 20,
         userSelect: 'none',
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px',
+        justifyContent: 'center',
+        gap: '2.5vh',
       }}>
-  
         {HABITS.map((habit) => {
           const streak = getCurrentStreak(habit.days)
           const longest = getLongestStreak(habit.days)
   
           return (
-            <div key={habit.name} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div key={habit.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.75vh' }}>
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -72,7 +66,7 @@ const HABITS = [
                 <span style={{
                   color: habit.color,
                   fontFamily: 'Arial Narrow, Arial, sans-serif',
-                  fontSize: '20px',
+                  fontSize: 'clamp(16px, 1.5vw, 32px)',
                   letterSpacing: '0.1em',
                 }}>
                   {habit.name}
@@ -80,9 +74,9 @@ const HABITS = [
                 <span style={{
                   color: 'rgba(255,255,255,0.4)',
                   fontFamily: 'var(--font-mono)',
-                  fontSize: '12px',
+                  fontSize: 'clamp(12px, 0.9vw, 18px)',
                 }}>
-                  {streak > 0 ? `${streak} day streak` : '0'} · best {longest}
+                  {streak > 0 ? `${streak}` : '0'} · best {longest}
                 </span>
               </div>
   
@@ -90,14 +84,14 @@ const HABITS = [
               <div style={{
                 display: 'flex',
                 flexWrap: 'wrap',
-                gap: '3px',
+                gap: '0.26vw',       /* 3 * 1.111 / 1280 * 100 */
               }}>
                 {habit.days.map((filled, i) => (
                   <div
                     key={i}
                     style={{
-                      width: '18px',
-                      height: '18px',
+                      width: '1.56vw',     /* 18 * 1.111 / 1280 * 100 */
+                      height: '1.56vw',    /* keeping square so using vw for both */
                       backgroundColor: filled
                         ? habit.color
                         : 'rgba(255,255,255,0.08)',
