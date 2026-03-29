@@ -265,7 +265,7 @@ export default function ColorScroller() {
           overflow: 'hidden',
           position: 'relative',
           cursor: hovering
-            ? `url('/src/assets/socialscroll.png') 32 32, auto`
+            ? `url('/socialscroll.png') 32 32, auto`
             : 'default',
         }}
       >

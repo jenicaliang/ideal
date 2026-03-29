@@ -89,7 +89,7 @@ export default function MusicPlayer() {
             zIndex: 20,
             userSelect: 'none',
         }}>
-            <audio ref={audioRef} src="/src/assets/affirmations_432HZ.mp3" loop />
+            <audio ref={audioRef} src="/affirmations_432HZ.mp3" loop />
 
             <div
                 onClick={togglePlay}
@@ -104,7 +104,7 @@ export default function MusicPlayer() {
             >
                 {/* Album art circle */}
                 <img
-                    src="/src/assets/affirmations_432HZ_cover.webp"
+                    src="/affirmations_432HZ_cover.webp"
                     alt=""
                     style={{
                         position: 'absolute',
