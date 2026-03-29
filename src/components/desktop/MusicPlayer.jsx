@@ -23,19 +23,24 @@ export default function MusicPlayer() {
         return () => audio.removeEventListener('timeupdate', updateProgress)
     }, [])
 
-    const togglePlay = () => {
+    const togglePlay = async () => {
         if (didDragRef.current) {
-            didDragRef.current = false
-            return
+          didDragRef.current = false
+          return
         }
         const audio = audioRef.current
         if (playing) {
-            audio.pause()
+          audio.pause()
+          setPlaying(false)
         } else {
-            audio.play()
+          try {
+            await audio.play()
+            setPlaying(true)
+          } catch (err) {
+            // play was interrupted, ignore
+          }
         }
-        setPlaying(!playing)
-    }
+      }
 
     const angleToProgress = (angle) => ((angle + 90) % 360) / 360
     const progressToAngle = (progress) => (progress * 360 - 90 + 360) % 360
