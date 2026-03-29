@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActive }) {
+export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActive, onRestoreIdeal }) {
   const [time, setTime] = useState('')
   const [hovering, setHovering] = useState(null)
 
@@ -14,13 +14,13 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
     return () => clearInterval(interval)
   }, [])
 
-  const iconBtnStyle = (id) => ({
+  const iconBtnStyle = () => ({
     background: 'none',
     border: 'none',
     color: 'var(--teal-deep)',
     fontFamily: 'Arial Narrow, Arial, sans-serif',
     fontSize: 'clamp(12px, 0.9vw, 18px)',
-    padding: '0 1vw',      
+    padding: '0 1vw',
     cursor: 'pointer',
     height: '100%',
     display: 'flex',
@@ -34,7 +34,7 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
       position: 'absolute',
       bottom: 0,
       right: 0,
-      height: '3.3vh',         
+      height: '3.3vh',
       backgroundColor: 'var(--teal-deep)',
       borderTop: '2px solid var(--teal-bright)',
       zIndex: 20,
@@ -43,7 +43,7 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
       alignItems: 'stretch',
     }}>
 
-      {/* About — XP start button style */}
+      {/* About */}
       <button
         onClick={onAbout}
         style={{
@@ -74,19 +74,23 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
         gap: '0.31vw',
       }}>
         {idealActive && (
-          <div style={{
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            border: '1px solid var(--teal-bright)',
-            color: 'var(--teal-bright)',
-            fontFamily: 'Arial Narrow, Arial, sans-serif',
-            fontSize: 'clamp(12px, 1vw, 18px)',
-            fontWeight: '700',
-            letterSpacing: '0.08em',
-            padding: '2px 1.39vw',
-            height: '2.5vh',
-            display: 'flex',
-            alignItems: 'center',
-          }}>
+          <div
+            onClick={onRestoreIdeal}
+            style={{
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              border: '1px solid var(--teal-bright)',
+              color: 'var(--teal-bright)',
+              fontFamily: 'Arial Narrow, Arial, sans-serif',
+              fontSize: 'clamp(12px, 0.9vw, 18px)',
+              fontWeight: '700',
+              letterSpacing: '0.08em',
+              padding: '2px 1.39vw',
+              height: '2.5vh',
+              display: 'flex',
+              alignItems: 'center',
+              cursor: 'pointer',
+            }}
+          >
             IDEAL_LAUNCHER
           </div>
         )}
@@ -99,18 +103,18 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
         alignItems: 'stretch',
         flexShrink: 0,
       }}>
-        {/* Restart icon button */}
+        {/* Restart */}
         <div
           onClick={() => window.location.reload()}
           onMouseEnter={() => setHovering('restart')}
           onMouseLeave={() => setHovering(null)}
-          style={iconBtnStyle('restart')}
+          style={iconBtnStyle()}
         >
           ⏻
           {hovering === 'restart' && (
             <div style={{
               position: 'absolute',
-              bottom: '3.75vh',      
+              bottom: '3.75vh',
               left: '50%',
               transform: 'translateX(-50%)',
               backgroundColor: 'var(--black)',
@@ -127,12 +131,12 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
           )}
         </div>
 
-        {/* Mono icon button */}
+        {/* Mono */}
         <div
           onClick={onMonochrome}
           onMouseEnter={() => setHovering('mono')}
           onMouseLeave={() => setHovering(null)}
-          style={iconBtnStyle('mono')}
+          style={iconBtnStyle()}
         >
           ◑
           {hovering === 'mono' && (

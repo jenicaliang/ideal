@@ -24,7 +24,7 @@ export default function CameraLog() {
         fontSize: 'clamp(12px, 0.9vw, 18px)',
         marginBottom: 'clamp(6px, 0.69vw, 12px)',
       }}>
-        currently showing: Living Room
+        showing: Your Living Room
       </div>
       <div style={{
         color: 'var(--grey)',

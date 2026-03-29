@@ -31,7 +31,7 @@ export default function BreakingNews() {
   if (hidden) return (
     <div style={{
       position: 'absolute',
-      bottom: '2.9vh',
+      bottom: '3.2vh',
       left: '20vw',
       right: 0,
       height: '3.2vh',
@@ -45,7 +45,7 @@ export default function BreakingNews() {
       <span style={{
         color: 'var(--yellow)',
         fontFamily: 'Arial Narrow, Arial, sans-serif',
-        fontSize: 'clamp(15px, 1vw, 32px)',
+        fontSize: 'clamp(15px, 1.5vw, 32px)',
       }}>
         BREAKING NEWS
       </span>
@@ -62,7 +62,7 @@ export default function BreakingNews() {
   return (
     <div style={{
       position: 'absolute',
-      bottom: '2.9vh',
+      bottom: '3.2vh',
       left: '20vw',
       right: 0,
       zIndex: 20,

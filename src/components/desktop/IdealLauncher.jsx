@@ -36,11 +36,11 @@ const GlitchOverlay = ({ onDone }) => {
   )
 }
 
-export default function IdealLauncher({ onAccept, onDecline }) {
+export default function IdealLauncher({ onAccept, onDecline, onRestoreWindow }) {
   const [phase, setPhase] = useState('waiting')
   const [showIcon, setShowIcon] = useState(false)
   const [showGlitch, setShowGlitch] = useState(false)
-  const [showExitMsg, setShowExitMsg] = useState(false)
+  const [showExitMsg, setShowExitMsg] = useState(false)             
   const [showBlack, setShowBlack] = useState(false)
   const interactionCount = useRef(0)
   const timerRef = useRef(null)
@@ -124,7 +124,11 @@ export default function IdealLauncher({ onAccept, onDecline }) {
   }
 
   const handleIconClick = () => {
-    setPhase('popup')
+    if (onRestoreWindow) {
+      onRestoreWindow()
+    } else {
+      setPhase('popup')
+    }
   }
 
   const handleUnderstand = () => {
@@ -250,7 +254,7 @@ export default function IdealLauncher({ onAccept, onDecline }) {
               lineHeight: '1.8',
               marginBottom: 'clamp(18px, 2.43vw, 40px)',
             }}>
-              Take your time. IDEAL will remain on your desktop, for when you're ready.
+              Take your time. IDEAL will remain on your desktop for when you're ready.
             </p>
             <button
               onClick={handleUnderstand}

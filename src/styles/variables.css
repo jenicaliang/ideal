@@ -17,12 +17,6 @@
     /* OS Typography */
     --font-os: 'Arial', sans-serif;
     --font-mono: 'Courier New', monospace;
-  
-    /* IDEAL (untouched) */
-    --ideal-cream: #f5f3ef;
-    --ideal-ink: #1e1e1e;
-    --ideal-red: #b04a2f;
-    --ideal-grey: #9a9690;
   }
   
   * {
@@ -47,3 +41,44 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
   }
+
+
+:root {
+  --bg: #f5f3ef;
+  --ink: #1e1e1e;
+  --red: #b04a2f;
+  --mid: #9a9690;
+
+  --mono: 'Reddit Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+
+  --size-label: 14px;
+  --size-caption: 14px;
+  --size-body: 22px;
+  --size-body-mono: 22px;
+  --size-button: 17px;
+  --size-tooltip: 19px;
+  --size-step-label: 20px;
+  --size-headline: 36px;
+  --size-headline-red: 65px;
+
+  --space-1: 5px;
+  --space-2: 10px;
+  --space-3: 14px;
+  --space-4: 19px;
+  --space-5: 29px;
+  --space-6: 38px;
+  --space-7: 58px;
+  --space-8: 86px;
+
+  --lh-tight: 1.2;
+  --lh-body: 1.7;
+  --lh-loose: 1.9;
+
+  --content-width: 780px;
+  --page-width: 1080px;
+
+  --border: 1px solid var(--ink);
+  --border-strong: 1.5px solid var(--ink);
+  --radius: 0px;
+}

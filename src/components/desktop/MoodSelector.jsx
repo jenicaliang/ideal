@@ -3,7 +3,8 @@ import { useState } from 'react'
 const MOODS = [':)', ':(', '>:(', ":'("]
 
 const RESPONSES = {
-  ':)': "glad you're feeling feel better soon! memory updated.",
+  ':)': "glad you're feeling good! memory updated.",
+  ':(': "sorry to hear that. feel better soon! memory updated.",
   '>:(': "sorry to hear that. feel better soon! memory updated.",
   ":'(": "sorry to hear that. feel better soon! memory updated.",
 }
