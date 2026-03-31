@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActive, onRestoreIdeal }) {
+export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActive, onRestoreIdeal, needsActive, onRestoreNeeds, toolsActive, onRestoreTools, folderActive, onRestoreFolder, worldActive, onRestoreWorld }) {
   const [time, setTime] = useState('')
   const [hovering, setHovering] = useState(null)
 
@@ -27,6 +27,21 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
     alignItems: 'center',
     position: 'relative',
     whiteSpace: 'nowrap',
+  })
+
+  const taskbarBtnStyle = (color) => ({
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    border: `1px solid ${color}`,
+    color: color,
+    fontFamily: 'Arial Narrow, Arial, sans-serif',
+    fontSize: 'clamp(12px, 0.9vw, 18px)',
+    fontWeight: '700',
+    letterSpacing: '0.08em',
+    padding: '2px 1.39vw',
+    height: '2.5vh',
+    display: 'flex',
+    alignItems: 'center',
+    cursor: 'pointer',
   })
 
   return (
@@ -65,33 +80,46 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
         ABOUT
       </button>
 
-      {/* Center — IDEAL installer slot */}
+      {/* Center — window slots */}
       <div style={{
         flex: 1,
         display: 'flex',
         alignItems: 'center',
         padding: '0 0.625vw',
-        gap: '0.31vw',
+        gap: '0.5vw',
       }}>
         {idealActive && (
           <div
             onClick={onRestoreIdeal}
-            style={{
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              border: '1px solid var(--teal-bright)',
-              color: 'var(--teal-bright)',
-              fontFamily: 'Arial Narrow, Arial, sans-serif',
-              fontSize: 'clamp(12px, 0.9vw, 18px)',
-              fontWeight: '700',
-              letterSpacing: '0.08em',
-              padding: '2px 1.39vw',
-              height: '2.5vh',
-              display: 'flex',
-              alignItems: 'center',
-              cursor: 'pointer',
-            }}
+            style={taskbarBtnStyle('var(--teal-bright)')}
           >
             IDEAL_LAUNCHER
+          </div>
+        )}
+        {folderActive && (
+          <div
+            onClick={onRestoreFolder}
+            style={taskbarBtnStyle('var(--teal-bright)')}
+          >
+            YOUR_IDEAL_LIFE
+          </div>
+        )}
+        {needsActive && (
+          <div
+            onClick={onRestoreNeeds}
+            style={taskbarBtnStyle('var(--magenta)')}
+          >
+            MASLOWS_NEEDS
+          </div>
+        )}
+        {toolsActive && (
+          <div onClick={onRestoreTools} style={taskbarBtnStyle('var(--magenta)')}>
+            PRECEDENTS
+          </div>
+        )}
+        {worldActive && (
+          <div onClick={onRestoreWorld} style={taskbarBtnStyle('var(--magenta)')}>
+            YOU_N_WRLD
           </div>
         )}
       </div>

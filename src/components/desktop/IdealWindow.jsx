@@ -1,37 +1,45 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import MitosisLoader from '../ideal/MitosisLoader'
 import LoginPage from '../ideal/LoginPage'
+import EnvironmentPage from '../ideal/EnvironmentPage'
+import UncertaintyPage from '../ideal/UncertaintyPage'
+import InferencePage from '../ideal/InferencePage'
 
-export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, isMinimized }) {
+export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, isMinimized, zIndex, onFocus, onOpenFolder }) {
   const [pos, setPos] = useState(null)
   const [phase, setPhase] = useState('mitosis')
   const [showCloseWarning, setShowCloseWarning] = useState(false)
+  const [loginStep, setLoginStep] = useState('headline')
   const dragOffset = useRef(null)
   const onMouseMoveRef = useRef(null)
   const onMouseUpRef = useRef(null)
 
   const onMouseUp = useCallback(() => {
     dragOffset.current = null
-    window.removeEventListener('mousemove', onMouseMoveRef.current)
-    window.removeEventListener('mouseup', onMouseUpRef.current)
+    if (onMouseMoveRef.current) window.removeEventListener('mousemove', onMouseMoveRef.current)
+    if (onMouseUpRef.current) window.removeEventListener('mouseup', onMouseUpRef.current)
   }, [])
 
   const onMouseMove = useCallback((e) => {
+    if (!dragOffset.current) return
     setPos({
       x: e.clientX - dragOffset.current.x,
       y: e.clientY - dragOffset.current.y,
     })
   }, [])
 
+  useEffect(() => {
   onMouseMoveRef.current = onMouseMove
   onMouseUpRef.current = onMouseUp
+}, [onMouseMove, onMouseUp])
 
   const onMouseDown = useCallback((e) => {
+    onFocus?.()
     const rect = e.currentTarget.parentElement.getBoundingClientRect()
     dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
     window.addEventListener('mousemove', onMouseMoveRef.current)
     window.addEventListener('mouseup', onMouseUpRef.current)
-  }, [])
+  }, [onFocus])
 
   const positionStyle = pos
     ? { position: 'fixed', left: pos.x, top: pos.y }
@@ -44,19 +52,20 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
 
   return (
     <>
-      {/* Window */}
-      <div style={{
-        ...positionStyle,
-        width: '70vw',
-        height: '80vh',
-        zIndex: 500,
-        display: isMinimized ? 'none' : 'flex',
-        flexDirection: 'column',
-        border: '2px solid var(--teal-bright)',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
-        userSelect: 'none',
-      }}>
-
+      <div
+        onMouseDown={() => onFocus?.()}
+        style={{
+          ...positionStyle,
+          width: '80vw',
+          height: '90vh',
+          zIndex: zIndex || 500,
+          display: isMinimized ? 'none' : 'flex',
+          flexDirection: 'column',
+          border: '2px solid var(--teal-bright)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
+          userSelect: 'none',
+        }}
+      >
         {/* Title bar */}
         <div
           onMouseDown={onMouseDown}
@@ -80,10 +89,9 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
           }}>
             IDEAL_LAUNCHER
           </span>
-
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5vw' }}>
             <button
-              onClick={onMinimize}
+              onClick={(e) => { e.stopPropagation(); onMinimize() }}
               style={{
                 background: 'none',
                 border: 'none',
@@ -98,7 +106,7 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
               _
             </button>
             <button
-              onClick={() => setShowCloseWarning(true)}
+              onClick={(e) => { e.stopPropagation(); setShowCloseWarning(true) }}
               style={{
                 background: 'none',
                 border: 'none',
@@ -116,29 +124,57 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
         </div>
 
         {/* Content area */}
-        <div style={{
-          flex: 1,
-          backgroundColor: 'var(--bg, #f5f3ef)',
-          overflow: 'hidden',
-          position: 'relative',
-        }}>
+        <div
+          onMouseDown={() => onFocus?.()}
+          style={{
+            flex: 1,
+            backgroundColor: 'var(--bg, #f5f3ef)',
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
           {phase === 'mitosis' && (
             <MitosisLoader onDone={() => setPhase('login')} />
           )}
           {phase === 'login' && (
-  <LoginPage
-    onComplete={() => {
-      onReachUncertainty()
-      setPhase('uncertainty')
-    }}
-    onCancel={() => setShowCloseWarning(true)}
-  />
-)}
-          {phase === 'uncertainty' && (
-            <div style={{ color: '#1e1e1e', padding: '2rem' }}>
-              UNCERTAINTY — coming soon
-            </div>
+            <LoginPage
+              initialStep={loginStep}
+              onComplete={() => {
+                setLoginStep('headline')
+                setPhase('environment')
+              }}
+              onCancel={() => setShowCloseWarning(true)}
+            />
           )}
+          {phase === 'environment' && (
+            <EnvironmentPage
+              onOpenFolder={onOpenFolder}
+              onProceed={() => {
+                onReachUncertainty?.()
+                setPhase('uncertainty')
+              }}
+              onCancel={() => setShowCloseWarning(true)}
+              onBack={() => {
+                setLoginStep('webcam')
+                setPhase('login')
+              }}
+            />
+          )}
+          {phase === 'uncertainty' && (
+            <UncertaintyPage
+              onProceed={() => setPhase('inference')}
+              onCancel={() => setShowCloseWarning(true)}
+              onBack={() => setPhase('environment')}
+            />
+          )}
+          {phase === 'inference' && (
+  <InferencePage onProceed={() => setPhase('pitch')} />
+)}
+          {phase === 'pitch' && (
+  <div style={{ color: '#1e1e1e', padding: '2rem', fontFamily: 'var(--mono)' }}>
+    PITCH — coming soon
+  </div>
+)}
         </div>
       </div>
 
@@ -147,7 +183,7 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
         <div style={{
           position: 'fixed',
           inset: 0,
-          zIndex: 600,
+          zIndex: 999999,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',

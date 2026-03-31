@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import Taskbar from '../components/desktop/Taskbar'
 import AboutWindow from '../components/desktop/AboutWindow'
 import RoomBackground from '../components/desktop/RoomBackground'
@@ -14,72 +14,168 @@ import HabitTracker from '../components/desktop/HabitTracker'
 import NoteToSelf from '../components/desktop/NoteToSelf'
 import IdealLauncher from '../components/desktop/IdealLauncher'
 import IdealWindow from '../components/desktop/IdealWindow'
+import NeedsWindow from '../components/desktop/NeedsWindow'
+import ToolsWindow from '../components/desktop/ToolsWindow'
+import FolderWindow from '../components/desktop/FolderWindow'
+import WorldWindow from '../components/desktop/WorldWindow'
+import DevicesWindow from '../components/desktop/DevicesWindow'
 
-export default function Desktop({ isMonochrome, onMonochrome, showAbout, onAbout, onCloseAbout }) {
+export default function Desktop({
+  isMonochrome,
+  onMonochrome,
+  showAbout,
+  onAbout,
+  onCloseAbout,
+}) {
   const [topNote, setTopNote] = useState(null)
   const [installedApps, setInstalledApps] = useState([])
-  const [installNotification, setInstallNotification] = useState(null)
   const [showNeedsWindow, setShowNeedsWindow] = useState(false)
   const [showToolsWindow, setShowToolsWindow] = useState(false)
+  const [toolsZ, setToolsZ] = useState(510)
+  const [toolsMinimized, setToolsMinimized] = useState(false)
   const [idealVisible, setIdealVisible] = useState(false)
   const [idealMinimized, setIdealMinimized] = useState(false)
+  const [needsMinimized, setNeedsMinimized] = useState(false)
+  const [folderVisible, setFolderVisible] = useState(false)
+  const [folderMinimized, setFolderMinimized] = useState(false)
+
   const [idealClosed, setIdealClosed] = useState(false)
   const [idealKey, setIdealKey] = useState(0)
 
-  const handleAccept = () => {
+  const [toolsResetKey, setToolsResetKey] = useState(0)
+  const [needsResetKey, setNeedsResetKey] = useState(0)
+  const [needsZ, setNeedsZ] = useState(510)
+
+  const [showWorldWindow, setShowWorldWindow] = useState(false)
+  const [worldMinimized, setWorldMinimized] = useState(false)
+  const [worldZ, setWorldZ] = useState(510)
+  const [worldResetKey, setWorldResetKey] = useState(0)
+
+  const FOLDER_Z = 9999
+  const IDEAL_MAX_Z = FOLDER_Z - 1
+
+  const [idealZ, setIdealZ] = useState(500)
+  const zCounter = useRef(500)
+
+
+  const handleAccept = useCallback(() => {
     setIdealVisible(true)
     setIdealClosed(false)
-  }
+  }, [])
 
-  const handleReachUncertainty = () => {
-    setTimeout(() => setInstallNotification('Installing NEEDS ASSESSMENT...'), 600)
+  const handleReachUncertainty = useCallback(() => {
     setTimeout(() => {
-      setInstalledApps(prev => [...prev, 'needs'])
-      setInstallNotification('Installing LEGACY TOOLS...')
+      setInstalledApps(prev => (prev.includes('needs') ? prev : [...prev, 'needs']))
+    }, 600)
+
+    setTimeout(() => {
+      setInstalledApps(prev => (prev.includes('tools') ? prev : [...prev, 'tools']))
     }, 2800)
-    setTimeout(() => {
-      setInstalledApps(prev => [...prev, 'tools'])
-      setInstallNotification(null)
-    }, 5000)
-  }
 
-  const handleIdealClose = () => {
+    setTimeout(() => {
+      setInstalledApps(prev => (prev.includes('world') ? prev : [...prev, 'world']))
+    }, 4200)
+  }, [])
+
+  const handleIdealClose = useCallback(() => {
     setIdealClosed(true)
     setIdealVisible(false)
     setIdealMinimized(false)
     setInstalledApps([])
-    setInstallNotification(null)
+    setFolderVisible(false)
+    setFolderMinimized(false)
     setIdealKey(k => k + 1)
-  }
+  }, [])
 
-  const handleIdealRestore = () => {
+  const handleIdealRestore = useCallback(() => {
     setIdealMinimized(false)
-    if (!idealVisible) setIdealVisible(true)
-  }
+    setIdealVisible(true)
+  }, [])
+
+  const handleOpenFolder = useCallback(() => {
+    setInstalledApps(prev => (prev.includes('folder') ? prev : [...prev, 'folder']))
+    setFolderVisible(true)
+    setFolderMinimized(false)
+    zCounter.current += 1
+  }, [])
+
+  const folderInstalledFiles = useMemo(
+    () =>
+      [
+        installedApps.includes('needs')
+          ? {
+            id: 'needs',
+            label: 'MASLOWS_NEEDS',
+            type: '.exe',
+            onReset: () => setNeedsResetKey(k => k + 1),
+          }
+          : null,
+        installedApps.includes('tools')
+          ? {
+            id: 'tools',
+            label: 'PRECEDENTS',
+            type: '.exe',
+            onReset: () => setToolsResetKey(k => k + 1),
+          }
+          : null,
+        installedApps.includes('world')
+          ? {
+            id: 'world',
+            label: 'YOU_N_WRLD',
+            type: '.exe',
+            onReset: () => {
+              localStorage.removeItem('ideal_world_selections')
+              localStorage.removeItem('ideal_world_values')
+              localStorage.removeItem('ideal_world_fears')
+              localStorage.removeItem('ideal_completed_world')
+              setWorldResetKey(k => k + 1)
+            },
+          }
+          : null,
+      ].filter(Boolean),
+    [installedApps]
+  )
+
+  const handleFolderFileClick = useCallback(id => {
+    if (id === 'needs') {
+      setShowNeedsWindow(true)
+      setNeedsMinimized(false)
+      zCounter.current += 1
+      setNeedsZ(zCounter.current)
+    } else if (id === 'tools') {
+      setShowToolsWindow(true)
+      setToolsMinimized(false)
+      zCounter.current += 1
+      setToolsZ(zCounter.current)
+    } else if (id === 'world') {
+      setShowWorldWindow(true)
+      setWorldMinimized(false)
+      zCounter.current += 1
+      setWorldZ(zCounter.current)
+    }
+  }, [])
 
   const ICON_SIZE = 'clamp(36px, 4vw, 64px)'
   const ICON_FONT = 'clamp(12px, 0.9vw, 18px)'
 
-  const appIcons = [
-    { id: 'needs', label: 'NEEDS_ASSESSMENT', short: 'NA', onClick: () => setShowNeedsWindow(true) },
-    { id: 'tools', label: 'LEGACY_TOOLS', short: 'LT', onClick: () => setShowToolsWindow(true) },
-  ]
-
   return (
-    <div style={{
-      width: '100vw',
-      height: '100vh',
-      backgroundColor: 'var(--teal-deep)',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
+    <div
+      style={{
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: 'var(--teal-deep)',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
       <RoomBackground />
       <Ticker />
+
       <StickyNote
         title="TO-DO LIST"
         initialX={0.26}
         initialY={0.37}
-        fontSize='clamp(15px, 1vw, 24px)'
+        fontSize="clamp(15px, 1vw, 24px)"
         zIndex={topNote === 'todo' ? 30 : 20}
         onFocus={() => setTopNote('todo')}
         items={[
@@ -98,11 +194,12 @@ export default function Desktop({ isMonochrome, onMonochrome, showAbout, onAbout
         ]}
         error="nice try."
       />
+
       <StickyNote
         title="!!!"
         initialX={0.37}
         initialY={0.22}
-        fontSize='clamp(16px, 1.5vw, 32px)'
+        fontSize="clamp(16px, 1.5vw, 32px)"
         zIndex={topNote === 'affirmation' ? 30 : 20}
         onFocus={() => setTopNote('affirmation')}
         items={[
@@ -113,6 +210,7 @@ export default function Desktop({ isMonochrome, onMonochrome, showAbout, onAbout
         ]}
         error="you need this one."
       />
+
       <MoodSelector />
       <CameraLog />
       <BreakingNews />
@@ -128,19 +226,33 @@ export default function Desktop({ isMonochrome, onMonochrome, showAbout, onAbout
         onAbout={onAbout}
         idealActive={idealMinimized}
         onRestoreIdeal={handleIdealRestore}
+        needsActive={needsMinimized}
+        onRestoreNeeds={() => setNeedsMinimized(false)}
+        toolsActive={toolsMinimized}
+        onRestoreTools={() => setToolsMinimized(false)}
+        worldActive={worldMinimized}
+        onRestoreWorld={() => setWorldMinimized(false)}
+        folderActive={folderMinimized}
+        onRestoreFolder={() => {
+          setFolderMinimized(false)
+          setFolderVisible(true)
+          zCounter.current += 1
+        }}
       />
 
       {showAbout && <AboutWindow onClose={onCloseAbout} />}
 
-      {/* Installed app icons */}
-      {appIcons.filter(a => installedApps.includes(a.id)).map((app, i) => (
+      {installedApps.includes('folder') && (
         <div
-          key={app.id}
-          onClick={app.onClick}
+          onClick={() => {
+            setFolderVisible(true)
+            setFolderMinimized(false)
+            zCounter.current += 1
+          }}
           style={{
             position: 'absolute',
+            left: '55vw',
             top: '45vh',
-            right: `calc(40vh + clamp(36px, 4vw, 64px) * ${i + 1} + ${(i + 1) * 12}px + 12px)`,
             zIndex: 50,
             cursor: 'pointer',
             display: 'flex',
@@ -150,61 +262,54 @@ export default function Desktop({ isMonochrome, onMonochrome, showAbout, onAbout
             userSelect: 'none',
           }}
         >
-          <div style={{
-            width: ICON_SIZE,
-            height: ICON_SIZE,
-            backgroundColor: 'var(--teal-deep)',
-            border: '2px solid var(--teal-bright)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--green)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: ICON_FONT,
-            fontWeight: '700',
-          }}>
-            {app.short}
+          <div
+            style={{
+              width: ICON_SIZE,
+              height: ICON_SIZE,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <svg viewBox="0 0 64 64" width="100%" height="100%" style={{ display: 'block' }}>
+              <path
+                d="M6 18h22l6 6h24v28H6z"
+                fill="var(--teal-deep)"
+                stroke="var(--teal-bright)"
+                strokeWidth="3"
+                shapeRendering="crispEdges"
+              />
+              <path
+                d="M6 18h22l4 4H6z"
+                fill="var(--teal-deep)"
+                stroke="var(--teal-bright)"
+                strokeWidth="3"
+                shapeRendering="crispEdges"
+              />
+            </svg>
           </div>
-          <span style={{
-            color: 'var(--white)',
-            fontFamily: 'var(--font-mono)',
-            fontSize: ICON_FONT,
-            textAlign: 'center',
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            padding: '1px 0.31vw',
-          }}>
-            {app.label}
-          </span>
-        </div>
-      ))}
 
-      {/* Install notification */}
-      {installNotification && (
-        <div style={{
-          position: 'absolute',
-          top: 'calc(45vh - 3.5vh)',
-          right: '40vh',
-          zIndex: 60,
-          backgroundColor: 'var(--black)',
-          border: '1px solid var(--teal-bright)',
-          color: 'var(--teal-bright)',
-          fontFamily: 'var(--font-mono)',
-          fontSize: 'clamp(12px, 0.9vw, 18px)',
-          padding: '0.4vh 0.8vw',
-          whiteSpace: 'nowrap',
-          pointerEvents: 'none',
-        }}>
-          {installNotification}
+          <span
+            style={{
+              color: 'var(--white)',
+              fontFamily: 'var(--font-mono)',
+              fontSize: ICON_FONT,
+              textAlign: 'center',
+              backgroundColor: 'rgba(0,0,0,0.8)',
+              padding: '1px 0.31vw',
+            }}
+          >
+            YOUR_IDEAL_LIFE
+          </span>
         </div>
       )}
 
       <IdealLauncher
         onAccept={handleAccept}
-        onDecline={() => {}}
+        onDecline={() => { }}
         onRestoreWindow={idealVisible || idealMinimized ? handleIdealRestore : null}
       />
 
-      {/* IDEAL onboarding window */}
       {idealVisible && !idealClosed && (
         <IdealWindow
           key={idealKey}
@@ -212,54 +317,118 @@ export default function Desktop({ isMonochrome, onMonochrome, showAbout, onAbout
           onClose={handleIdealClose}
           onReachUncertainty={handleReachUncertainty}
           isMinimized={idealMinimized}
+          zIndex={idealZ}
+          onFocus={() => {
+            zCounter.current += 1
+            setIdealZ(Math.min(zCounter.current, IDEAL_MAX_Z))
+          }}
+          onOpenFolder={handleOpenFolder}
         />
       )}
 
-      {/* App windows — stubs */}
-      {showNeedsWindow && (
-        <div>NEEDS WINDOW COMING SOON</div>
-      )}
-      {showToolsWindow && (
-        <div>TOOLS WINDOW COMING SOON</div>
+      {installedApps.includes('folder') && (
+        <FolderWindow
+          installedFiles={folderInstalledFiles}
+          onFileClick={handleFolderFileClick}
+          onClose={() => {
+            setFolderVisible(false)
+            setFolderMinimized(false)
+          }}
+          onFocus={() => { }}
+          onMinimize={() => setFolderMinimized(true)}
+          zIndex={FOLDER_Z}
+          isMinimized={folderMinimized || !folderVisible}
+        />
       )}
 
-      {/* Closed state message */}
+      {installedApps.includes('needs') && (
+        <NeedsWindow
+          key={`needs-${needsResetKey}`}
+          onClose={() => setShowNeedsWindow(false)}
+          onFocus={() => {
+            zCounter.current += 1
+            setNeedsZ(zCounter.current)
+          }}
+          onMinimize={() => setNeedsMinimized(true)}
+          zIndex={needsZ}
+          isMinimized={needsMinimized || !showNeedsWindow}
+        />
+      )}
+
+      {installedApps.includes('tools') && (
+        <ToolsWindow
+          key={`tools-${toolsResetKey}`}
+          onClose={() => setShowToolsWindow(false)}
+          onFocus={() => {
+            zCounter.current += 1
+            setToolsZ(zCounter.current)
+          }}
+          onMinimize={() => setToolsMinimized(true)}
+          zIndex={toolsZ}
+          isMinimized={toolsMinimized || !showToolsWindow}
+        />
+      )}
+
+      {installedApps.includes('world') && (
+        <WorldWindow
+          key={`world-${worldResetKey}`}
+          onClose={() => setShowWorldWindow(false)}
+          onFocus={() => {
+            zCounter.current += 1
+            setWorldZ(zCounter.current)
+          }}
+          onMinimize={() => setWorldMinimized(true)}
+          zIndex={worldZ}
+          isMinimized={worldMinimized || !showWorldWindow}
+        />
+      )}
+
       {idealClosed && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 600,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: 'rgba(0,0,0,0.85)',
-        }}>
-          <div style={{
-            width: 'clamp(300px, 34.7vw, 560px)',
-            backgroundColor: 'var(--black)',
-            border: '2px solid var(--teal-bright)',
-            padding: 'clamp(20px, 2.78vw, 44px)',
-            textAlign: 'center',
-          }}>
-            <p style={{
-              color: 'var(--white)',
-              fontFamily: 'Arial Narrow, Arial, sans-serif',
-              fontSize: 'clamp(16px, 1.75vw, 32px)',
-              fontWeight: '700',
-              letterSpacing: '0.05em',
-              marginBottom: 'clamp(10px, 1.39vw, 22px)',
-            }}>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 999999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0,0,0,0.85)',
+          }}
+        >
+          <div
+            style={{
+              width: 'clamp(300px, 34.7vw, 560px)',
+              backgroundColor: 'var(--black)',
+              border: '2px solid var(--teal-bright)',
+              padding: 'clamp(20px, 2.78vw, 44px)',
+              textAlign: 'center',
+            }}
+          >
+            <p
+              style={{
+                color: 'var(--white)',
+                fontFamily: 'Arial Narrow, Arial, sans-serif',
+                fontSize: 'clamp(16px, 1.75vw, 32px)',
+                fontWeight: '700',
+                letterSpacing: '0.05em',
+                marginBottom: 'clamp(10px, 1.39vw, 22px)',
+              }}
+            >
               That's ok.
             </p>
-            <p style={{
-              color: 'var(--grey-light)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'clamp(15px, 1.2vw, 24px)',
-              lineHeight: '1.8',
-              marginBottom: 'clamp(18px, 2.43vw, 40px)',
-            }}>
+
+            <p
+              style={{
+                color: 'var(--grey-light)',
+                fontFamily: 'var(--font-mono)',
+                fontSize: 'clamp(15px, 1.2vw, 24px)',
+                lineHeight: '1.8',
+                marginBottom: 'clamp(18px, 2.43vw, 40px)',
+              }}
+            >
               Take your time. IDEAL will be here when you're ready.
             </p>
+
             <button
               onClick={() => setIdealClosed(false)}
               style={{

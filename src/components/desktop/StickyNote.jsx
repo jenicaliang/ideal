@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 
 export default function StickyNote({ title, items, error, initialX = 0.3, initialY = 0.25, fontSize = 'clamp(15px, 1.2vw, 24px)', zIndex = 20, onFocus }) {
   const [pos, setPos] = useState({ 
@@ -23,8 +23,10 @@ export default function StickyNote({ title, items, error, initialX = 0.3, initia
     })
   }, [])
 
+  useEffect(() => {
   onMouseMoveRef.current = onMouseMove
   onMouseUpRef.current = onMouseUp
+}, [onMouseMove, onMouseUp])
 
   const onMouseDown = useCallback((e) => {
     if (onFocus) onFocus()
@@ -92,18 +94,18 @@ export default function StickyNote({ title, items, error, initialX = 0.3, initia
       {/* Content */}
       <div style={{ padding: 'clamp(10px, 1.3vw, 22px) clamp(12px, 1.48vw, 24px)' }}>
         {items.map((item, i) => (
-          item === ''
-            ? <div key={i} style={{ height: '1.875vh' }} />
-            : <div key={i} style={{
-                fontFamily: 'var(--font-os)',
-                fontSize: fontSize,
-                lineHeight: '1.2',
-                color: 'var(--black)',
-                marginBottom: 'clamp(2px, 0.35vw, 6px)',
-              }}>
-                {item}
-              </div>
-        ))}
+  item === ''
+    ? <div key={`spacer-${i}`} style={{ height: '1.875vh' }} />
+    : <div key={`item-${i}`} style={{
+        fontFamily: 'var(--font-os)',
+        fontSize: fontSize,
+        lineHeight: '1.2',
+        color: 'var(--black)',
+        marginBottom: 'clamp(2px, 0.35vw, 6px)',
+      }}>
+        {item}
+      </div>
+))}
       </div>
 
       {/* Pinned flash message */}

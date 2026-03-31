@@ -1,98 +1,14 @@
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+import PixelButton from './shared/PixelButton'
+import BottomBar from './shared/BottomBar'
 
 const css = (v: string) => `var(${v})`
 const CAM_SIZE = 160
 
-function PixelButton({ children, onClick, disabled = false, position = 'solo' }: {
-  children: React.ReactNode
-  onClick: () => void
-  disabled?: boolean
-  position?: 'solo' | 'left' | 'right'
-}) {
-  const [hovered, setHovered] = useState(false)
-  return (
-    <button
-      onClick={disabled ? undefined : onClick}
-      onMouseEnter={() => !disabled && setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        fontFamily: css('--mono'),
-        fontSize: css('--size-button'),
-        fontWeight: 400,
-        letterSpacing: '0.25em',
-        textTransform: 'uppercase',
-        background: disabled ? 'transparent' : hovered ? css('--ink') : 'transparent',
-        borderTop: `1.5px solid ${css('--ink')}`,
-        borderBottom: `1.5px solid ${css('--ink')}`,
-        borderLeft: `1.5px solid ${css('--ink')}`,
-        borderRight: position === 'left' ? 'none' : `1.5px solid ${css('--ink')}`,
-        borderRadius: position === 'solo' ? css('--radius') : 0,
-        padding: '6px 18px',
-        color: disabled ? css('--mid') : hovered ? css('--bg') : css('--ink'),
-        cursor: disabled ? 'default' : 'pointer',
-        transition: 'background 0.2s ease, color 0.2s ease',
-      }}
-    >
-      {children}
-    </button>
-  )
-}
-
-function BottomBar({ onBack, onNext, onCancel, backDisabled = false, nextLabel = 'Next >' }: {
-  onBack: () => void
-  onNext: () => void
-  onCancel: () => void
-  backDisabled?: boolean
-  nextLabel?: string
-}) {
-  return (
-    <div
-      onClick={e => e.stopPropagation()}
-      style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: 'clamp(8px, 1vh, 14px) clamp(12px, 1.5vw, 24px)',
-        display: 'flex',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        gap: css('--space-4'),
-        backgroundColor: css('--bg'),
-        zIndex: 30,
-      }}
-    >
-      {/* Divider line — inset from sides */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: 'clamp(12px, 1.5vw, 24px)',
-        right: 'clamp(12px, 1.5vw, 24px)',
-        height: '1px',
-        backgroundColor: css('--mid'),
-        opacity: 0.4,
-      }} />
-
-      {/* Back + Next flush together */}
-      <div style={{ display: 'flex' }}>
-  <PixelButton onClick={onBack} disabled={backDisabled} position='left'>
-    {'< Back'}
-  </PixelButton>
-  <PixelButton onClick={onNext} position='right'>
-    {nextLabel}
-  </PixelButton>
-</div>
-<PixelButton onClick={onCancel} position='solo'>
-  Cancel
-</PixelButton>
-    </div>
-  )
-}
-
 function WebcamCapture({ onCaptured }: { onCaptured: (v: boolean) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const loopRef = useRef<ReturnType<typeof setInterval>>()
+  const loopRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [status, setStatus] = useState<'idle' | 'active' | 'captured'>('idle')
   const NATIVE = 64
 
@@ -178,11 +94,14 @@ function WebcamCapture({ onCaptured }: { onCaptured: (v: boolean) => void }) {
   }
 
   function capture() {
-    if (loopRef.current) clearInterval(loopRef.current)
-    drawPixelFrame()
-    setStatus('captured')
-    onCaptured(true)
-  }
+  if (loopRef.current) clearInterval(loopRef.current)
+  drawPixelFrame()
+  const s = videoRef.current?.srcObject as MediaStream | null
+  s?.getTracks().forEach(t => t.stop())
+  if (videoRef.current) videoRef.current.srcObject = null
+  setStatus('captured')
+  onCaptured(true)
+}
 
   function recapture() {
     setStatus('active')
@@ -210,13 +129,9 @@ function WebcamCapture({ onCaptured }: { onCaptured: (v: boolean) => void }) {
       gap: css('--space-5'),
       width: '100%',
     }}>
-      <label style={{
-        fontFamily: css('--mono'),
-        fontSize: css('--size-label'),
-        fontWeight: 400,
-        letterSpacing: '0.3em',
-        textTransform: 'uppercase',
+      <label className="ideal-label" style={{
         color: css('--mid'),
+        letterSpacing: '0.3em',
         alignSelf: 'center',
       }}>
         Proof of identity:
@@ -284,7 +199,7 @@ function WebcamCapture({ onCaptured }: { onCaptured: (v: boolean) => void }) {
 const CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 function useScrambledId(finalId: string, active: boolean) {
   const [display, setDisplay] = useState('')
-  const ref = useRef<ReturnType<typeof setInterval>>()
+  const ref = useRef<ReturnType<typeof setInterval> | null>(null)
   useEffect(() => {
     if (!finalId || !active) return
     let elapsed = 0
@@ -300,24 +215,27 @@ function useScrambledId(finalId: string, active: boolean) {
         ).join('')
       )
       if (progress >= 1) {
-        clearInterval(ref.current)
+        if (ref.current) clearInterval(ref.current)
         setDisplay(finalId)
       }
     }, 50)
-    return () => clearInterval(ref.current)
+    return () => {
+      if (ref.current) clearInterval(ref.current)
+    }
   }, [finalId, active])
   return display
 }
 
-export default function LoginPage({ onComplete, onCancel }: {
+export default function LoginPage({ onComplete, onCancel, initialStep = 'headline' }: {
   onComplete: () => void
   onCancel: () => void
+  initialStep?: 'headline' | 'id' | 'webcam'
 }) {
-  const [step, setStep] = useState<'headline' | 'id' | 'webcam'>('headline')
+  const [step, setStep] = useState<'headline' | 'id' | 'webcam'>(initialStep)
   const [visitorId, setVisitorId] = useState('')
   const [captured, setCaptured] = useState(false)
   const [errorVisible, setErrorVisible] = useState(false)
-  const errorTimer = useRef<ReturnType<typeof setTimeout>>()
+  const errorTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const scrambledId = useScrambledId(visitorId, step === 'id')
 
   useEffect(() => {
@@ -366,27 +284,18 @@ export default function LoginPage({ onComplete, onCancel }: {
             gap: css('--space-5'),
           }}
         >
-          <h1 style={{
+          <h1 className="ideal-headline" style={{
             fontFamily: css('--mono'),
-            fontSize: css('--size-headline'),
             fontWeight: 400,
-            color: css('--ink'),
             letterSpacing: '-0.01em',
-            margin: 0,
-            lineHeight: css('--lh-tight'),
             textTransform: 'uppercase',
             userSelect: 'none',
             textAlign: 'center',
           }}>
             READY TO LIVE<br />YOUR IDEAL LIFE?
           </h1>
-          <p style={{
-            margin: 0,
-            fontFamily: css('--mono'),
-            fontSize: css('--size-label'),
+          <p className="ideal-label" style={{
             color: css('--mid'),
-            letterSpacing: '0.2em',
-            textTransform: 'uppercase',
             userSelect: 'none',
           }}>
             Click anywhere to continue
@@ -415,22 +324,14 @@ export default function LoginPage({ onComplete, onCancel }: {
             width: '100%',
             alignItems: 'center',
           }}>
-            <label style={{
-              fontFamily: css('--mono'),
-              fontSize: css('--size-label'),
-              fontWeight: 400,
-              letterSpacing: '0.3em',
-              textTransform: 'uppercase',
+            <label className="ideal-label" style={{
               color: css('--mid'),
+              letterSpacing: '0.3em',
               alignSelf: 'flex-start',
             }}>
               Your assigned ID:
             </label>
-            <div style={{
-              fontFamily: css('--mono'),
-              fontSize: css('--size-body-mono'),
-              fontWeight: 400,
-              color: css('--ink'),
+            <div className="ideal-mono-body" style={{
               borderBottom: `1.5px solid ${css('--ink')}`,
               padding: '8px 0',
               letterSpacing: '0.05em',
@@ -504,7 +405,7 @@ export default function LoginPage({ onComplete, onCancel }: {
             onNext={handleReady}
             onCancel={onCancel}
             backDisabled={false}
-            nextLabel="I'M READY"
+            nextLabel="Next >"
           />
         </>
       )}

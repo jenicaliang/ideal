@@ -1,0 +1,41 @@
+.ideal-label {
+  font-family: var(--mono);
+  font-size: var(--size-label);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.ideal-body {
+  font-family: var(--sans);
+  font-size: var(--size-body);
+  font-weight: 300;
+  line-height: var(--lh-body);
+  color: var(--ink);
+  margin: 0;
+}
+
+.ideal-mono-body {
+  font-family: var(--mono);
+  font-size: var(--size-body-mono);
+  font-weight: 400;
+  color: var(--ink);
+  margin: 0;
+}
+
+.ideal-caption {
+  font-family: var(--mono);
+  font-size: var(--size-caption);
+  letter-spacing: 0.1em;
+}
+
+.ideal-headline {
+  font-family: var(--sans);
+  font-size: var(--size-headline);
+  font-weight: 700;
+  line-height: var(--lh-tight);
+  color: var(--ink);
+  margin: 0;
+}
+
