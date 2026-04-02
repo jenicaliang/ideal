@@ -18,7 +18,7 @@ import NeedsWindow from '../components/desktop/NeedsWindow'
 import ToolsWindow from '../components/desktop/ToolsWindow'
 import FolderWindow from '../components/desktop/FolderWindow'
 import WorldWindow from '../components/desktop/WorldWindow'
-import DevicesWindow from '../components/desktop/DevicesWindow'
+import DevicesWindow from '../components/desktop/DevicesWindow' 
 
 export default function Desktop({
   isMonochrome,
@@ -51,12 +51,17 @@ export default function Desktop({
   const [worldZ, setWorldZ] = useState(510)
   const [worldResetKey, setWorldResetKey] = useState(0)
 
+  const [showDevicesWindow, setShowDevicesWindow] = useState(false)
+const [devicesMinimized, setDevicesMinimized] = useState(false)
+const [devicesZ, setDevicesZ] = useState(510)
+
   const FOLDER_Z = 9999
   const IDEAL_MAX_Z = FOLDER_Z - 1
 
   const [idealZ, setIdealZ] = useState(500)
   const zCounter = useRef(500)
 
+  const [theme, setTheme] = useState('teal') // 'teal' | 'red'
 
   const handleAccept = useCallback(() => {
     setIdealVisible(true)
@@ -78,6 +83,7 @@ export default function Desktop({
   }, [])
 
   const handleIdealClose = useCallback(() => {
+  setTheme('teal')
     setIdealClosed(true)
     setIdealVisible(false)
     setIdealMinimized(false)
@@ -98,6 +104,14 @@ export default function Desktop({
     setFolderMinimized(false)
     zCounter.current += 1
   }, [])
+
+  const handleDownloadCatalog = useCallback(() => {
+  setInstalledApps(prev => prev.includes('devices') ? prev : [...prev, 'devices'])
+  setShowDevicesWindow(true)
+  setDevicesMinimized(false)
+  zCounter.current += 1
+  setDevicesZ(zCounter.current)
+}, [])
 
   const folderInstalledFiles = useMemo(
     () =>
@@ -132,6 +146,12 @@ export default function Desktop({
             },
           }
           : null,
+          installedApps.includes('devices') ? {
+  id: 'devices',
+  label: 'PRODUCT_CATALOG',
+  type: '.exe',
+} : null,
+
       ].filter(Boolean),
     [installedApps]
   )
@@ -152,11 +172,20 @@ export default function Desktop({
       setWorldMinimized(false)
       zCounter.current += 1
       setWorldZ(zCounter.current)
-    }
+    } else if (id === 'devices') {
+  setShowDevicesWindow(true)
+  setDevicesMinimized(false)
+  zCounter.current += 1
+  setDevicesZ(zCounter.current)
+}
   }, [])
 
   const ICON_SIZE = 'clamp(36px, 4vw, 64px)'
   const ICON_FONT = 'clamp(12px, 0.9vw, 18px)'
+
+  const chromeColor = theme === 'red' ? '#b04a2f' : 'var(--teal-deep)'
+const chromeBorder = theme === 'red' ? 'var(--yellow)' : 'var(--teal-bright)'
+const chromeButtonColor = theme === 'red' ? '#f5f3ef' : 'var(--yellow)'
 
   return (
     <div
@@ -188,7 +217,6 @@ export default function Desktop({
           'DO BY END OF WEEK!!!',
           'O User journey outline',
           'O Finish paper edits',
-          'O Ask Sarah for dress back',
           'O Sign up for volunteering',
           'O Book dentist appointment',
         ]}
@@ -238,6 +266,8 @@ export default function Desktop({
           setFolderVisible(true)
           zCounter.current += 1
         }}
+        devicesActive={devicesMinimized}
+onRestoreDevices={() => setDevicesMinimized(false)}
       />
 
       {showAbout && <AboutWindow onClose={onCloseAbout} />}
@@ -317,12 +347,17 @@ export default function Desktop({
           onClose={handleIdealClose}
           onReachUncertainty={handleReachUncertainty}
           isMinimized={idealMinimized}
+          onDownloadCatalog={handleDownloadCatalog}
           zIndex={idealZ}
           onFocus={() => {
             zCounter.current += 1
             setIdealZ(Math.min(zCounter.current, IDEAL_MAX_Z))
           }}
           onOpenFolder={handleOpenFolder}
+          onThemeChange={() => setTheme('red')}
+chromeColor={chromeColor}
+chromeBorder={chromeBorder}
+
         />
       )}
 
@@ -338,6 +373,9 @@ export default function Desktop({
           onMinimize={() => setFolderMinimized(true)}
           zIndex={FOLDER_Z}
           isMinimized={folderMinimized || !folderVisible}
+          chromeColor={chromeColor}
+chromeBorder={chromeBorder}
+chromeButtonColor={chromeButtonColor}
         />
       )}
 
@@ -382,6 +420,17 @@ export default function Desktop({
           isMinimized={worldMinimized || !showWorldWindow}
         />
       )}
+
+      {installedApps.includes('devices') && (
+  <DevicesWindow
+    onClose={() => setShowDevicesWindow(false)}
+    onFocus={() => { zCounter.current += 1; setDevicesZ(zCounter.current) }}
+    onMinimize={() => setDevicesMinimized(true)}
+    zIndex={devicesZ}
+    isMinimized={devicesMinimized || !showDevicesWindow}
+  />
+)}
+
 
       {idealClosed && (
         <div

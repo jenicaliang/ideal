@@ -14,13 +14,29 @@ export default function MusicPlayer() {
 
   useEffect(() => {
     const audio = audioRef.current
+    if (!audio) return
+
     const updateProgress = () => {
       if (audio.duration) {
         setProgress(audio.currentTime / audio.duration)
       }
     }
+
+    const tryAutoplay = async () => {
+      try {
+        await audio.play()
+        setPlaying(true)
+      } catch (err) {}
+    }
+
     audio.addEventListener('timeupdate', updateProgress)
-    return () => audio.removeEventListener('timeupdate', updateProgress)
+    audio.addEventListener('canplay', tryAutoplay, { once: true })
+    tryAutoplay()
+
+    return () => {
+      audio.removeEventListener('timeupdate', updateProgress)
+      audio.removeEventListener('canplay', tryAutoplay)
+    }
   }, [])
 
   const togglePlay = async () => {
@@ -92,7 +108,7 @@ export default function MusicPlayer() {
       zIndex: 20,
       userSelect: 'none',
     }}>
-      <audio ref={audioRef} src="/affirmations_432HZ.mp3" loop />
+      <audio ref={audioRef} src="/affirmations_432HZ.mp3" loop autoPlay />
 
       <div
         onClick={togglePlay}

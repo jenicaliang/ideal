@@ -18,14 +18,6 @@ const DEVICES = [
     modelPlaceholder: "T",
   },
   {
-    id: "pulsepoint",
-    name: "Pulsepoint",
-    dataType: "Biometric data",
-    description: "A ring indistinguishable from jewellery. Tracks pulse, temperature, and autonomic response.",
-    modelSrc: `${GITHUB_RAW}/Ring.glb`,
-    modelPlaceholder: "P",
-  },
-  {
     id: "biopill",
     name: "Biopill",
     dataType: "Internal environmental data",
@@ -82,9 +74,12 @@ function DeviceModel({ modelSrc, letter, visible, deviceId }: {
 }) {
   const mountRef = useRef<HTMLDivElement>(null)
   const threeRef = useRef<{ renderer: any; controls: any; animId: number } | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     if (!visible || !mountRef.current) return
+
+    setLoading(true)
     let cancelled = false
     const delay = setTimeout(() => { init().catch(console.warn) }, 420)
 
@@ -178,6 +173,7 @@ function DeviceModel({ modelSrc, letter, visible, deviceId }: {
           }
         })
         scene.add(model)
+        setLoading(false)
       }, undefined, (err: any) => console.warn("GLB load failed", err))
 
       function animate() {
@@ -204,7 +200,25 @@ function DeviceModel({ modelSrc, letter, visible, deviceId }: {
     }
   }, [visible, modelSrc])
 
-  return <div ref={mountRef} style={{ width: "100%", height: "100%", cursor: "grab" }} />
+  return (
+    <div ref={mountRef} style={{ width: "100%", height: "100%", cursor: "grab", position: "relative" }}>
+      {loading && (
+        <div style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontFamily: "var(--mono)",
+          fontSize: 12,
+          color: "var(--mid)",
+          pointerEvents: "none",
+        }}>
+          Loading...
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function DevicesPage() {
@@ -228,7 +242,7 @@ export default function DevicesPage() {
     <div style={{
       width: "100%",
       height: "100%",
-      background: "#1e1e1e",
+      background: "#e8e6e1",
       display: "flex",
       flexDirection: "column",
       overflow: "hidden",
@@ -274,7 +288,7 @@ export default function DevicesPage() {
         {/* Device info */}
         <div style={{
           padding: "20px 24px 24px",
-          borderTop: "1px solid rgba(30,30,30,0.12)",
+          borderTop: "1px solid var(--mid)",
           opacity: fading ? 0 : 1,
           transition: "opacity 0.18s ease",
           display: "flex",
@@ -331,7 +345,7 @@ export default function DevicesPage() {
             fontSize: 12,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
-            color: "rgba(245,243,239,0.5)",
+            color: "var(--ink)",
             background: "transparent",
             border: "none",
             cursor: "pointer",
@@ -345,7 +359,7 @@ export default function DevicesPage() {
           fontSize: 11,
           letterSpacing: "0.2em",
           textTransform: "uppercase",
-          color: "rgba(245,243,239,0.3)",
+          color: "var(--ink)",
         }}>
           {idx + 1} / {DEVICES.length}
         </span>
@@ -356,7 +370,7 @@ export default function DevicesPage() {
             fontSize: 12,
             letterSpacing: "0.14em",
             textTransform: "uppercase",
-            color: "rgba(245,243,239,0.5)",
+            color: "var(--ink)",
             background: "transparent",
             border: "none",
             cursor: "pointer",

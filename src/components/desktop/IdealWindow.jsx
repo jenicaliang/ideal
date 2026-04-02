@@ -4,8 +4,9 @@ import LoginPage from '../ideal/LoginPage'
 import EnvironmentPage from '../ideal/EnvironmentPage'
 import UncertaintyPage from '../ideal/UncertaintyPage'
 import InferencePage from '../ideal/InferencePage'
+import PitchPage from '../ideal/PitchPage'
 
-export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, isMinimized, zIndex, onFocus, onOpenFolder }) {
+export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, isMinimized, zIndex, onFocus, onOpenFolder, onDownloadCatalog, onThemeChange, chromeColor, chromeBorder }) {
   const [pos, setPos] = useState(null)
   const [phase, setPhase] = useState('mitosis')
   const [showCloseWarning, setShowCloseWarning] = useState(false)
@@ -29,9 +30,9 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
   }, [])
 
   useEffect(() => {
-  onMouseMoveRef.current = onMouseMove
-  onMouseUpRef.current = onMouseUp
-}, [onMouseMove, onMouseUp])
+    onMouseMoveRef.current = onMouseMove
+    onMouseUpRef.current = onMouseUp
+  }, [onMouseMove, onMouseUp])
 
   const onMouseDown = useCallback((e) => {
     onFocus?.()
@@ -61,7 +62,7 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
           zIndex: zIndex || 500,
           display: isMinimized ? 'none' : 'flex',
           flexDirection: 'column',
-          border: '2px solid var(--teal-bright)',
+          border: `2px solid ${chromeBorder || 'var(--teal-bright)'}`,
           boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
           userSelect: 'none',
         }}
@@ -70,8 +71,8 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
         <div
           onMouseDown={onMouseDown}
           style={{
-            backgroundColor: 'var(--teal-deep)',
-            borderBottom: '2px solid var(--teal-bright)',
+            backgroundColor: chromeColor || 'var(--teal-deep)',
+            borderBottom: `2px solid ${chromeBorder || 'var(--teal-bright)'}`,
             padding: 'clamp(4px, 0.52vw, 9px) clamp(8px, 0.94vw, 16px)',
             display: 'flex',
             justifyContent: 'space-between',
@@ -81,7 +82,7 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
           }}
         >
           <span style={{
-            color: 'var(--teal-bright)',
+            color: chromeBorder || 'var(--teal-bright)',
             fontFamily: 'Arial Narrow, Arial, sans-serif',
             fontSize: 'clamp(12px, 0.9vw, 18px)',
             fontWeight: '700',
@@ -95,7 +96,7 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
               style={{
                 background: 'none',
                 border: 'none',
-                color: 'var(--teal-bright)',
+                color: chromeBorder || 'var(--teal-bright)',
                 cursor: 'pointer',
                 fontSize: 'clamp(12px, 0.9vw, 18px)',
                 fontWeight: '700',
@@ -168,13 +169,14 @@ export default function IdealWindow({ onMinimize, onClose, onReachUncertainty, i
             />
           )}
           {phase === 'inference' && (
-  <InferencePage onProceed={() => setPhase('pitch')} />
-)}
+            <InferencePage onProceed={() => setPhase('pitch')} />
+          )}
           {phase === 'pitch' && (
-  <div style={{ color: '#1e1e1e', padding: '2rem', fontFamily: 'var(--mono)' }}>
-    PITCH — coming soon
-  </div>
-)}
+            <PitchPage
+              onDownloadCatalog={onDownloadCatalog}
+              onThemeChange={onThemeChange}
+            />
+          )}
         </div>
       </div>
 

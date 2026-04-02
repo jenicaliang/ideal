@@ -16,6 +16,9 @@ export default function FolderWindow({
   onClose,
   onFocus,
   zIndex,
+  chromeColor,
+  chromeBorder,
+  chromeButtonColor,
 }: {
   installedFiles: InstalledFile[]
   onFileClick: (id: string) => void
@@ -24,6 +27,9 @@ export default function FolderWindow({
   onClose: () => void
   onFocus: () => void
   zIndex: number
+  chromeColor?: string
+  chromeBorder?: string
+  chromeButtonColor?: string
 }) {
   const [pos, setPos] = useState<{ x: number, y: number } | null>(null)
   const dragOffset = useRef<{ x: number, y: number } | null>(null)
@@ -75,20 +81,20 @@ export default function FolderWindow({
         zIndex,
         display: 'flex',
         flexDirection: 'column',
-        border: '2px solid var(--teal-bright)',
+        border: `2px solid ${chromeBorder || 'var(--teal-bright)'}`,
         boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
         userSelect: 'none',
         visibility: isMinimized ? 'hidden' : 'visible',
         pointerEvents: isMinimized ? 'none' : 'auto',
-        backgroundColor: 'var(--teal-deep)',
+        backgroundColor: chromeColor || 'var(--teal-deep)',
       }}
     >
       {/* Title bar */}
       <div
         onMouseDown={onMouseDown}
         style={{
-          backgroundColor: 'var(--teal-deep)',
-          borderBottom: '2px solid var(--teal-bright)',
+          backgroundColor: chromeColor || 'var(--teal-deep)',
+          borderBottom: `2px solid ${chromeBorder || 'var(--teal-bright)'}`,
           padding: 'clamp(4px, 0.52vw, 9px) clamp(8px, 0.94vw, 16px)',
           display: 'flex',
           justifyContent: 'space-between',
@@ -98,7 +104,7 @@ export default function FolderWindow({
         }}
       >
         <span style={{
-          color: 'var(--teal-bright)',
+          color: chromeBorder || 'var(--teal-bright)',
           fontFamily: 'Arial Narrow, Arial, sans-serif',
           fontSize: 'clamp(12px, 0.9vw, 18px)',
           fontWeight: '700',
@@ -114,7 +120,7 @@ export default function FolderWindow({
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--teal-bright)',
+              color: chromeBorder || 'var(--teal-bright)',
               cursor: 'pointer',
               fontSize: 'clamp(12px, 0.9vw, 18px)',
               fontWeight: '700',
@@ -130,7 +136,7 @@ export default function FolderWindow({
             style={{
               background: 'none',
               border: 'none',
-              color: 'var(--yellow)',
+              color: chromeButtonColor || 'var(--yellow)',
               cursor: 'pointer',
               fontSize: 'clamp(12px, 0.9vw, 18px)',
               fontWeight: '700',

@@ -402,7 +402,7 @@ export default function IdealLauncher({ onAccept, onDecline, onRestoreWindow }) 
                 <span
                   onClick={handleRemember}
                   style={{
-                    color: 'var(--grey)',
+                    color: 'var(--green)',
                     fontFamily: 'var(--font-mono)',
                     fontSize: 'clamp(12px, 0.9vw, 18px)',
                     textDecoration: 'underline',

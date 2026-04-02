@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActive, onRestoreIdeal, needsActive, onRestoreNeeds, toolsActive, onRestoreTools, folderActive, onRestoreFolder, worldActive, onRestoreWorld }) {
+export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActive, onRestoreIdeal, needsActive, onRestoreNeeds, toolsActive, onRestoreTools, folderActive, onRestoreFolder, worldActive, onRestoreWorld, devicesActive, onRestoreDevices}) {
   const [time, setTime] = useState('')
   const [hovering, setHovering] = useState(null)
 
@@ -120,6 +120,11 @@ export default function Taskbar({ onMonochrome, isMonochrome, onAbout, idealActi
         {worldActive && (
           <div onClick={onRestoreWorld} style={taskbarBtnStyle('var(--magenta)')}>
             YOU_N_WRLD
+          </div>
+        )}
+        {devicesActive && (
+          <div onClick={onRestoreDevices} style={taskbarBtnStyle('var(--magenta)')}>
+            PRODUCT_CATALOG
           </div>
         )}
       </div>

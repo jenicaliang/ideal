@@ -34,11 +34,11 @@ const HABITS = [
     return longest
   }
   
-  export default function HabitTracker() {
-    return (
-      <div style={{
-        position: 'absolute',
-        left: 0,
+export default function HabitTracker() {
+  return (
+    <div style={{
+      position: 'absolute',
+      left: 0,
         top: '12.2vh',          
         width: '20vw',
         height: '32.8vh',        
@@ -47,14 +47,24 @@ const HABITS = [
         padding: 'clamp(8px, 0.87vw, 14px)',
         zIndex: 20,
         userSelect: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        gap: '2.5vh',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'flex-start',
+      gap: '1.75vh',
+    }}>
+      <div style={{
+        color: 'var(--teal-bright)',
+        fontFamily: 'Arial Narrow, Arial, sans-serif',
+        fontSize: 'clamp(14px, 1vw, 20px)',
+        fontWeight: '700',
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
       }}>
-        {HABITS.map((habit) => {
-          const streak = getCurrentStreak(habit.days)
-          const longest = getLongestStreak(habit.days)
+        Habit Tracker
+      </div>
+      {HABITS.map((habit) => {
+        const streak = getCurrentStreak(habit.days)
+        const longest = getLongestStreak(habit.days)
   
           return (
             <div key={habit.name} style={{ display: 'flex', flexDirection: 'column', gap: '0.75vh' }}>

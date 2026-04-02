@@ -265,6 +265,24 @@ export default function ColorScroller() {
             : 'default',
         }}
       >
+        <div style={{
+          position: 'absolute',
+          top: '1.1vh',
+          left: '0.78vw',
+          color: cards[current]?.text || '#ffffff',
+          fontFamily: 'Arial Narrow, Arial, sans-serif',
+          fontSize: 'clamp(12px, 1vw, 18px)',
+          fontWeight: '700',
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          whiteSpace: 'nowrap',
+          zIndex: 10,
+          pointerEvents: 'none',
+          transition: 'color 0.4s',
+        }}>
+          Dopamine Simulator
+        </div>
+
         {cards.map((card, i) => {
           const offset = i - current
           if (Math.abs(offset) > 1) return null
@@ -274,7 +292,7 @@ export default function ColorScroller() {
         {/* Total scrolled — top left */}
         <div style={{
           position: 'absolute',
-          top: '1.25vh',
+          top: '3.9vh',
           left: '0.78vw',
           color: cards[current]?.text || '#ffffff',
           fontFamily: 'var(--font-mono)',
@@ -289,8 +307,8 @@ export default function ColorScroller() {
         {/* Unique unlocked — top right */}
         <div style={{
           position: 'absolute',
-          top: '1.25vh',
-          right: '0.78vw',
+          top: '5.9vh',
+          left: '0.78vw',
           color: cards[current]?.text || '#ffffff',
           fontFamily: 'var(--font-mono)',
           fontSize: 'clamp(12px, 0.9vw, 18px)',
