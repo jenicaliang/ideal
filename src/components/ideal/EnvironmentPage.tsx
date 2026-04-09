@@ -16,7 +16,7 @@ export default function EnvironmentPage({
 }) {
   useEffect(() => {
     onOpenFolder?.()
-  }, []) // fire once on mount only
+  }, [])
 
   return (
     <div style={{
@@ -27,6 +27,8 @@ export default function EnvironmentPage({
       overflow: 'hidden',
       boxSizing: 'border-box',
     }}>
+
+      {/* Main content */}
       <div style={{
         position: 'absolute',
         inset: 0,
@@ -61,12 +63,60 @@ export default function EnvironmentPage({
           </div>
         </div>
       </div>
+
+      <div style={{
+        position: 'absolute',
+        top: '3%',
+        right: 'clamp(325px, 5vw, 500px)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 8,
+        zIndex: 10,
+        pointerEvents: 'none',
+        animation: 'arrowPulse 1s ease-in-out infinite',
+      }}>
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 36 36"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ transform: 'rotate(45deg)' }}
+        >
+          <path
+            d="M6 30 L30 6 M30 6 L30 20 M30 6 L16 6"
+            stroke="var(--red)"
+            strokeWidth="2.5"
+            strokeLinecap="square"
+            strokeLinejoin="miter"
+          />
+        </svg>
+        <span style={{
+          fontFamily: css('--mono'),
+          fontSize: 10,
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          color: 'var(--red)',
+          whiteSpace: 'nowrap',
+        }}>
+          your databank
+        </span>
+      </div>
+
       <BottomBar
         onBack={onBack}
         onNext={onProceed}
         onCancel={onCancel}
         backDisabled={false}
       />
+
+      <style>{`
+        @keyframes arrowPulse {
+          0%, 100% { transform: translateX(0); }
+          50%       { transform: translateX(7px); }
+        }
+      `}</style>
     </div>
   )
 }

@@ -342,7 +342,7 @@ export default function SocialProofPage({ onProceed, onBack }: {
 >
     <div style={{ position: 'absolute', top: 0, left: 'clamp(12px, 1.5vw, 24px)', right: 'clamp(12px, 1.5vw, 24px)', height: '1px', backgroundColor: css('--mid'), opacity: 0.4 }} />
     <PixelButton onClick={onBack} position="solo">{'< Back'}</PixelButton>
-    <PixelButton onClick={allFlipped ? onProceed : undefined} disabled={!allFlipped} position="solo">{'Next >'}</PixelButton>
+    <PixelButton onClick={() => { if (allFlipped) onProceed() }} disabled={!allFlipped} position="solo">{'Next >'}</PixelButton>
 </div>
         </div>
     )

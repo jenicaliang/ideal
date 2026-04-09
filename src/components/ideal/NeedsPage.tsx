@@ -62,7 +62,7 @@ function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
-    ;[a[i], a[j]] = [a[j], a[i]]
+      ;[a[i], a[j]] = [a[j], a[i]]
   }
   return a
 }
@@ -586,26 +586,20 @@ export default function NeedsPage({ visibleKey }: { visibleKey?: number }) {
 
           {(() => {
             const { yTop, yBottom } = tierY(4)
-            const pixel = 4
-            const pixels: React.ReactElement[] = []
-            const fillColor = actHovered ? "var(--red)" : "var(--ink)"
-            for (let py = yTop; py < yBottom; py += pixel) {
-              for (let px = 0; px < S; px += pixel) {
-                const midY = py + pixel / 2
-                const { xL, xR } = xBounds(midY)
-                if (px + pixel / 2 >= xL && px + pixel / 2 <= xR) {
-                  pixels.push(
-                    <rect
-                      key={`pixel-${Math.round(px)}-${Math.round(py)}`}
-                      x={px + 0.5} y={py + 0.5}
-                      width={pixel - 1} height={pixel - 1}
-                      fill={fillColor}
-                      opacity={actHovered ? 0.7 : 0.18}
-                    />
-                  )
-                }
-              }
-            }
+            const midY = (yTop + yBottom) / 2
+            const { xL, xR } = xBounds(midY)
+            const centerX = (xL + xR) / 2
+            const centerY = yTop + (yBottom - yTop) * 0.65
+            const fontSize = actHovered ? 72 : 48
+            const topBounds = xBounds(yTop)
+            const botBounds = xBounds(yBottom)
+            const clipPoints = [
+              `${topBounds.xL},${yTop}`,
+              `${topBounds.xR},${yTop}`,
+              `${botBounds.xR},${yBottom}`,
+              `${botBounds.xL},${yBottom}`,
+            ].join(" ")
+
             return (
               <g
                 style={{ cursor: "none" }}
@@ -613,7 +607,23 @@ export default function NeedsPage({ visibleKey }: { visibleKey?: number }) {
                 onMouseLeave={() => setActHovered(false)}
                 onClick={() => setActDisclaimer(true)}
               >
-                {pixels}
+                <polygon points={clipPoints} fill="transparent" />
+                <text
+                  x={centerX}
+                  y={centerY}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  style={{
+                    fontFamily: "'Reddit Mono', monospace",
+                    fontSize: `${fontSize}px`,
+                    fill: actHovered ? "var(--red)" : "var(--ink)",
+                    userSelect: "none",
+                    transition: "font-size 0.15s ease, fill 0.15s ease",
+                    pointerEvents: "none",
+                  }}
+                >
+                  ?
+                </text>
               </g>
             )
           })()}
@@ -886,22 +896,7 @@ export default function NeedsPage({ visibleKey }: { visibleKey?: number }) {
         <OnboardingOverlay onDismiss={() => setShowOnboarding(false)} />
       )}
 
-      {actHovered && (
-        <div style={{
-          position: "absolute",
-          left: mousePos.x + 10,
-          top: mousePos.y - 18,
-          fontFamily: css("--mono"),
-          fontSize: "25px",
-          color: "var(--ink)",
-          pointerEvents: "none",
-          zIndex: 200,
-          userSelect: "none",
-          lineHeight: 1,
-        }}>
-          ?
-        </div>
-      )}
+
     </div>
   )
 }

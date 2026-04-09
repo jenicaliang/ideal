@@ -1,3 +1,4 @@
+import { BooleanKeyframeTrack } from 'three'
 import PixelButton from './PixelButton'
 
 const css = (v: string) => `var(${v})`
@@ -7,12 +8,14 @@ export default function BottomBar({
   onBack,
   onNext,
   backDisabled = false,
+  disableNext = false,
   nextLabel = 'Next >',
 }: {
   onCancel: () => void
   onBack?: () => void
   onNext?: () => void
   backDisabled?: boolean
+  disableNext?: boolean
   nextLabel?: string
 }) {
   return (
@@ -50,7 +53,7 @@ export default function BottomBar({
         <PixelButton onClick={onBack!} disabled={backDisabled} position="left">
           {'< Back'}
         </PixelButton>
-        <PixelButton onClick={onNext!} position="right">
+        <PixelButton onClick={onNext!} disabled={disableNext} position="right">
           {nextLabel}
         </PixelButton>
       </div>

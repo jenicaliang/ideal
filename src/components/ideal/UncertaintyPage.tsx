@@ -1,12 +1,26 @@
+import { useState } from 'react'
 import BottomBar from './shared/BottomBar'
 
 const css = (v: string) => `var(${v})`
 
-export default function UncertaintyPage({ onProceed, onCancel, onBack }: {
+export default function UncertaintyPage({ onProceed, onCancel, onBack, needsVisited = false }: {
   onProceed: () => void
   onCancel: () => void
   onBack: () => void
+  needsVisited: boolean
 }) {
+  const [nudgeRed, setNudgeRed] = useState(false)
+  console.log('needsVisited:', needsVisited)
+
+  function handleNextAttempt() {
+    if (needsVisited) {
+      onProceed()
+    } else {
+      setNudgeRed(true)
+      setTimeout(() => setNudgeRed(false), 1500)
+    }
+  }
+
   return (
     <div style={{
       width: '100%',
@@ -46,7 +60,7 @@ export default function UncertaintyPage({ onProceed, onCancel, onBack }: {
               We didn't choose you at random. We chose you because we've seen how hard you work to be a better you. The best you. And because you haven't managed to. Not yet.
             </p>
             <p className="ideal-body">
-              It's difficult to achieve our goals, with the problem of {' '}
+              It's difficult to achieve our goals, with the problem of{' '}
               <strong style={{
                 fontWeight: 600,
                 color: css('--red'),
@@ -59,7 +73,11 @@ export default function UncertaintyPage({ onProceed, onCancel, onBack }: {
             <p className="ideal-body">
               What if we could solve it?
             </p>
-            <p className="ideal-body" style={{ color: css('--mid'), fontStyle: 'italic' }}>
+            <p className="ideal-body" style={{
+              color: nudgeRed ? 'var(--red)' : css('--mid'),
+              fontStyle: 'italic',
+              transition: 'color 0.2s ease',
+            }}>
               Three resources have been installed in your databank. Explore at your own pace, or proceed when ready.
             </p>
           </div>
@@ -67,7 +85,7 @@ export default function UncertaintyPage({ onProceed, onCancel, onBack }: {
       </div>
       <BottomBar
         onBack={onBack}
-        onNext={onProceed}
+        onNext={handleNextAttempt}
         onCancel={onCancel}
         backDisabled={false}
       />

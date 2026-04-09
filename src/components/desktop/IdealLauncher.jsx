@@ -36,11 +36,11 @@ const GlitchOverlay = ({ onDone }) => {
   )
 }
 
-export default function IdealLauncher({ onAccept, onRestoreWindow }) {
+export default function IdealLauncher({ onAccept, onRestoreWindow, onContextMenu }) {
   const [phase, setPhase] = useState('waiting')
   const [showIcon, setShowIcon] = useState(false)
   const [showGlitch, setShowGlitch] = useState(false)
-  const [showExitMsg, setShowExitMsg] = useState(false)             
+  const [showExitMsg, setShowExitMsg] = useState(false)
   const [showBlack, setShowBlack] = useState(false)
   const interactionCount = useRef(0)
   const timerRef = useRef(null)
@@ -166,22 +166,18 @@ export default function IdealLauncher({ onAccept, onRestoreWindow }) {
       {showGlitch && <GlitchOverlay onDone={handleGlitchDone} />}
 
       {showBlack && (
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 450,
-          backgroundColor: 'var(--black)',
-        }} />
+        <div style={{ position: 'fixed', inset: 0, zIndex: 450, backgroundColor: 'var(--black)' }} />
       )}
 
       {/* Desktop icon */}
       {showIcon && phase !== 'popup' && phase !== 'remember' && (
         <div
           onClick={handleIconClick}
+          onContextMenu={onContextMenu}
           style={{
             position: 'absolute',
-            top: '45vh',         
-            right: '40vh',        
+            top: '45vh',
+            right: '40vh',
             zIndex: 50,
             cursor: 'pointer',
             display: 'flex',
@@ -192,7 +188,7 @@ export default function IdealLauncher({ onAccept, onRestoreWindow }) {
           }}
         >
           <div style={{
-            width: 'clamp(36px, 4vw, 64px)',   
+            width: 'clamp(36px, 4vw, 64px)',
             height: 'clamp(36px, 4vw, 64px)',
             backgroundColor: 'var(--teal-deep)',
             border: '2px solid var(--teal-bright)',
@@ -222,49 +218,24 @@ export default function IdealLauncher({ onAccept, onRestoreWindow }) {
       {/* Exit message overlay */}
       {showExitMsg && (
         <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 600,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          position: 'fixed', inset: 0, zIndex: 600,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           backgroundColor: 'rgba(0,0,0,0.85)',
         }}>
           <div style={{
-            width: 'clamp(300px, 34.7vw, 560px)',   /* 400 * 1.111 / 1280 * 100 */
+            width: 'clamp(300px, 34.7vw, 560px)',
             backgroundColor: 'var(--black)',
             border: '2px solid var(--teal-bright)',
             padding: 'clamp(20px, 2.78vw, 44px)',
             textAlign: 'center',
           }}>
-            <p style={{
-              color: 'var(--white)',
-              fontFamily: 'Arial Narrow, Arial, sans-serif',
-              fontSize: 'clamp(16px, 1.75vw, 32px)',
-              fontWeight: '700',
-              letterSpacing: '0.05em',
-              marginBottom: 'clamp(10px, 1.39vw, 22px)',
-            }}>
+            <p style={{ color: 'var(--white)', fontFamily: 'Arial Narrow, Arial, sans-serif', fontSize: 'clamp(16px, 1.75vw, 32px)', fontWeight: '700', letterSpacing: '0.05em', marginBottom: 'clamp(10px, 1.39vw, 22px)' }}>
               That's ok.
             </p>
-            <p style={{
-              color: 'var(--grey-light)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'clamp(15px, 1.2vw, 24px)',
-              lineHeight: '1.8',
-              marginBottom: 'clamp(18px, 2.43vw, 40px)',
-            }}>
+            <p style={{ color: 'var(--grey-light)', fontFamily: 'var(--font-mono)', fontSize: 'clamp(15px, 1.2vw, 24px)', lineHeight: '1.8', marginBottom: 'clamp(18px, 2.43vw, 40px)' }}>
               Take your time. IDEAL will remain on your desktop for when you're ready.
             </p>
-            <button
-              onClick={handleUnderstand}
-              style={{
-                ...btnStyle,
-                backgroundColor: 'var(--teal-deep)',
-                color: 'var(--teal-bright)',
-                width: '100%',
-              }}
-            >
+            <button onClick={handleUnderstand} style={{ ...btnStyle, backgroundColor: 'var(--teal-deep)', color: 'var(--teal-bright)', width: '100%' }}>
               I UNDERSTAND
             </button>
           </div>
@@ -274,141 +245,52 @@ export default function IdealLauncher({ onAccept, onRestoreWindow }) {
       {/* Main popup */}
       {phase === 'popup' && !showExitMsg && (
         <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 500,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          position: 'fixed', inset: 0, zIndex: 500,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           backgroundColor: 'rgba(0,0,0,0.6)',
         }}>
           <div style={{
-            width: 'clamp(350px, 37vw, 800px)',  
+            width: 'clamp(350px, 37vw, 800px)',
             border: '2px solid var(--teal-bright)',
             boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
             animation: 'fadeIn 0.3s ease',
           }}>
             <div style={titleBarStyle}>
-              <span style={{
-                color: 'var(--teal-bright)',
-                fontFamily: 'Arial Narrow, Arial, sans-serif',
-                fontSize: 'clamp(12px, 0.9vw, 18px)',
-                fontWeight: '700',
-                letterSpacing: '0.1em',
-              }}>
+              <span style={{ color: 'var(--teal-bright)', fontFamily: 'Arial Narrow, Arial, sans-serif', fontSize: 'clamp(12px, 0.9vw, 18px)', fontWeight: '700', letterSpacing: '0.1em' }}>
                 USER ACCOUNT CONTROL
               </span>
-              <span
-                onClick={handleNo}
-                style={{
-                  color: 'var(--yellow)',
-                  fontSize: 'clamp(12px, 0.9vw, 18px)',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                }}
-              >
+              <span onClick={handleNo} style={{ color: 'var(--yellow)', fontSize: 'clamp(12px, 0.9vw, 18px)', fontWeight: '700', cursor: 'pointer' }}>
                 X
               </span>
             </div>
             <div style={bodyStyle}>
-              <div style={{
-                borderBottom: '1px solid var(--teal-deep)',
-                paddingBottom: 'clamp(10px, 1.39vw, 22px)',
-                marginBottom: 'clamp(10px, 1.39vw, 22px)',
-              }}>
-                <p style={{
-                  color: 'var(--white)',
-                  fontFamily: 'Arial Narrow, Arial, sans-serif',
-                  fontSize: 'clamp(16px, 1.75vw, 32px)',
-                  fontWeight: '700',
-                  letterSpacing: '0.05em',
-                  marginBottom: 'clamp(14px, 1.74vw, 28px)',
-                }}>
+              <div style={{ borderBottom: '1px solid var(--teal-deep)', paddingBottom: 'clamp(10px, 1.39vw, 22px)', marginBottom: 'clamp(10px, 1.39vw, 22px)' }}>
+                <p style={{ color: 'var(--white)', fontFamily: 'Arial Narrow, Arial, sans-serif', fontSize: 'clamp(16px, 1.75vw, 32px)', fontWeight: '700', letterSpacing: '0.05em', marginBottom: 'clamp(14px, 1.74vw, 28px)' }}>
                   Do you want to allow this app to make changes to your device?
                 </p>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 'clamp(10px, 1.3vw, 22px)',
-                  marginBottom: 'clamp(8px, 1.04vw, 18px)',
-                }}>
-                  <div style={{
-                    width: 'clamp(36px, 3.9vw, 64px)',
-                    height: 'clamp(36px, 3.9vw, 64px)',
-                    backgroundColor: 'var(--teal-deep)',
-                    border: '1px solid var(--teal-bright)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: 'var(--green)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: 'clamp(12px, 0.9vw, 18px)',
-                    fontWeight: '700',
-                    flexShrink: 0,
-                  }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(10px, 1.3vw, 22px)', marginBottom: 'clamp(8px, 1.04vw, 18px)' }}>
+                  <div style={{ width: 'clamp(36px, 3.9vw, 64px)', height: 'clamp(36px, 3.9vw, 64px)', backgroundColor: 'var(--teal-deep)', border: '1px solid var(--teal-bright)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--green)', fontFamily: 'var(--font-mono)', fontSize: 'clamp(12px, 0.9vw, 18px)', fontWeight: '700', flexShrink: 0 }}>
                     ID
                   </div>
                   <div>
-                    <div style={{
-                      color: 'var(--white)',
-                      fontFamily: 'Arial Narrow, Arial, sans-serif',
-                      fontSize: 'clamp(15px, 1vw, 24px)',
-                      fontWeight: '700',
-                      letterSpacing: '0.05em',
-                    }}>
+                    <div style={{ color: 'var(--white)', fontFamily: 'Arial Narrow, Arial, sans-serif', fontSize: 'clamp(15px, 1vw, 24px)', fontWeight: '700', letterSpacing: '0.05em' }}>
                       IDEAL_LAUNCHER.exe
                     </div>
-                    <div style={{
-                      color: 'var(--grey)',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: 'clamp(12px, 0.9vw, 18px)',
-                      marginTop: 'clamp(4px, 0.52vw, 9px)',
-                    }}>
+                    <div style={{ color: 'var(--grey)', fontFamily: 'var(--font-mono)', fontSize: 'clamp(12px, 0.9vw, 18px)', marginTop: 'clamp(4px, 0.52vw, 9px)' }}>
                       Publisher: IDEAL Systems Inc.
                     </div>
-                    <div style={{
-                      color: 'var(--grey)',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: 'clamp(12px, 0.9vw, 18px)',
-                    }}>
+                    <div style={{ color: 'var(--grey)', fontFamily: 'var(--font-mono)', fontSize: 'clamp(12px, 0.9vw, 18px)' }}>
                       File origin: Unknown
                     </div>
                   </div>
                 </div>
               </div>
               <div style={{ display: 'flex', gap: 'clamp(6px, 0.69vw, 12px)', marginBottom: 'clamp(10px, 1.39vw, 22px)' }}>
-                <button
-                  onClick={handleOk}
-                  style={{
-                    ...btnStyle,
-                    backgroundColor: 'var(--teal-deep)',
-                    color: 'var(--teal-bright)',
-                  }}
-                >
-                  OK
-                </button>
-                <button
-                  onClick={handleNo}
-                  style={{
-                    ...btnStyle,
-                    backgroundColor: 'var(--black)',
-                    color: 'var(--grey-light)',
-                  }}
-                >
-                  NO
-                </button>
+                <button onClick={handleOk} style={{ ...btnStyle, backgroundColor: 'var(--teal-deep)', color: 'var(--teal-bright)' }}>OK</button>
+                <button onClick={handleNo} style={{ ...btnStyle, backgroundColor: 'var(--black)', color: 'var(--grey-light)' }}>NO</button>
               </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <span
-                  onClick={handleRemember}
-                  style={{
-                    color: 'var(--green)',
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: 'clamp(12px, 0.9vw, 18px)',
-                    textDecoration: 'underline',
-                    cursor: 'pointer',
-                  }}
-                >
+                <span onClick={handleRemember} style={{ color: 'var(--green)', fontFamily: 'var(--font-mono)', fontSize: 'clamp(12px, 0.9vw, 18px)', textDecoration: 'underline', cursor: 'pointer' }}>
                   I don't remember installing this
                 </span>
               </div>
@@ -420,12 +302,8 @@ export default function IdealLauncher({ onAccept, onRestoreWindow }) {
       {/* Remember popup */}
       {phase === 'remember' && !showExitMsg && (
         <div style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 500,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          position: 'fixed', inset: 0, zIndex: 500,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           backgroundColor: 'rgba(0,0,0,0.6)',
         }}>
           <div style={{
@@ -435,77 +313,26 @@ export default function IdealLauncher({ onAccept, onRestoreWindow }) {
             animation: 'fadeIn 0.3s ease',
           }}>
             <div style={titleBarStyle}>
-              <span style={{
-                color: 'var(--teal-bright)',
-                fontFamily: 'Arial Narrow, Arial, sans-serif',
-                fontSize: 'clamp(12px, 1vw, 18px)',
-                fontWeight: '700',
-                letterSpacing: '0.1em',
-              }}>
+              <span style={{ color: 'var(--teal-bright)', fontFamily: 'Arial Narrow, Arial, sans-serif', fontSize: 'clamp(12px, 1vw, 18px)', fontWeight: '700', letterSpacing: '0.1em' }}>
                 USER ACCOUNT CONTROL
               </span>
-              <span
-                onClick={handleNo}
-                style={{
-                  color: 'var(--yellow)',
-                  fontSize: 'clamp(12px, 1vw, 18px)',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                }}
-              >
+              <span onClick={handleNo} style={{ color: 'var(--yellow)', fontSize: 'clamp(12px, 1vw, 18px)', fontWeight: '700', cursor: 'pointer' }}>
                 X
               </span>
             </div>
             <div style={bodyStyle}>
-              <p style={{
-                color: 'var(--white)',
-                fontFamily: 'Arial Narrow, Arial, sans-serif',
-                fontSize: 'clamp(16px, 1.75vw, 32px)',
-                fontWeight: '700',
-                letterSpacing: '0.05em',
-                marginBottom: 'clamp(8px, 1.04vw, 18px)',
-              }}>
+              <p style={{ color: 'var(--white)', fontFamily: 'Arial Narrow, Arial, sans-serif', fontSize: 'clamp(16px, 1.75vw, 32px)', fontWeight: '700', letterSpacing: '0.05em', marginBottom: 'clamp(8px, 1.04vw, 18px)' }}>
                 You've been selected as a beta tester.
               </p>
-              <p style={{
-                color: 'var(--grey-light)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: 'clamp(15px, 1.2vw, 24px)',
-                lineHeight: '1.7',
-                marginBottom: 'clamp(15px, 1vw, 28px)',
-              }}>
+              <p style={{ color: 'var(--grey-light)', fontFamily: 'var(--font-mono)', fontSize: 'clamp(15px, 1.2vw, 24px)', lineHeight: '1.7', marginBottom: 'clamp(15px, 1vw, 28px)' }}>
                 IDEAL was automatically installed on your device as part of a limited beta program. You were chosen based on behavior patterns.
               </p>
-              <p style={{
-                color: 'var(--grey-light)',
-                fontFamily: 'var(--font-mono)',
-                fontSize: 'clamp(15px, 1.2vw, 24px)',
-                lineHeight: '1.7',
-                marginBottom: 'clamp(15px, 1vw, 28px)',
-              }}>
+              <p style={{ color: 'var(--grey-light)', fontFamily: 'var(--font-mono)', fontSize: 'clamp(15px, 1.2vw, 24px)', lineHeight: '1.7', marginBottom: 'clamp(15px, 1vw, 28px)' }}>
                 Would you like to continue to the onboarding experience?
               </p>
               <div style={{ display: 'flex', gap: 'clamp(6px, 0.69vw, 12px)' }}>
-                <button
-                  onClick={handleOk}
-                  style={{
-                    ...btnStyle,
-                    backgroundColor: 'var(--teal-deep)',
-                    color: 'var(--teal-bright)',
-                  }}
-                >
-                  YES, CONTINUE
-                </button>
-                <button
-                  onClick={handleNo}
-                  style={{
-                    ...btnStyle,
-                    backgroundColor: 'var(--black)',
-                    color: 'var(--grey-light)',
-                  }}
-                >
-                  NO THANKS
-                </button>
+                <button onClick={handleOk} style={{ ...btnStyle, backgroundColor: 'var(--teal-deep)', color: 'var(--teal-bright)' }}>YES, CONTINUE</button>
+                <button onClick={handleNo} style={{ ...btnStyle, backgroundColor: 'var(--black)', color: 'var(--grey-light)' }}>NO THANKS</button>
               </div>
             </div>
           </div>
