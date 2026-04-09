@@ -13,14 +13,14 @@ type RefusePageProps = {
 const MESSAGES = [
   {
     label: "Session interrupted",
-    heading: "Your optimisation session was interrupted.",
+    heading: "Your initialization was interrupted by an unexpected input.",
     body: "Resume where you left off.",
     escapeLabel: "Not now.",
   },
   {
     label: "Still here",
-    heading: "Your goals are still waiting.",
-    body: "IDEAL is ready when you are.",
+    heading: "Your ideal life is waiting.",
+    body: "We are ready when you are.",
     escapeLabel: "I'm not interested.",
   },
   {

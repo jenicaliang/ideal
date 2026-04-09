@@ -308,20 +308,6 @@ export default function SocialProofPage({ onProceed, onBack }: {
                         />
                     ))}
                 </div>
-
-                {/* Hint */}
-                {!allFlipped && (
-                    <p style={{
-                        fontFamily: css("--mono"),
-                        fontSize: 11,
-                        color: css("--mid"),
-                        margin: 0,
-                        letterSpacing: "0.04em",
-                        opacity: 0.7,
-                    }}>
-                        Click each card to see their outcome.
-                    </p>
-                )}
             </div>
 
             {/* BottomBar */}
@@ -342,7 +328,7 @@ export default function SocialProofPage({ onProceed, onBack }: {
 >
     <div style={{ position: 'absolute', top: 0, left: 'clamp(12px, 1.5vw, 24px)', right: 'clamp(12px, 1.5vw, 24px)', height: '1px', backgroundColor: css('--mid'), opacity: 0.4 }} />
     <PixelButton onClick={onBack} position="solo">{'< Back'}</PixelButton>
-    <PixelButton onClick={() => { if (allFlipped) onProceed() }} disabled={!allFlipped} position="solo">{'Next >'}</PixelButton>
+   <PixelButton onClick={onProceed} position="solo">{'Next >'}</PixelButton>
 </div>
         </div>
     )
