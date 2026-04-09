@@ -210,7 +210,7 @@ export default function IdealWindow({
           {phase === 'cta' && (
             <CTAPage
               onProceed={() => setPhase('join')}
-              onRefuse={onRefuse}
+              onRefuse={() => setPhase('refuse')}
             />
           )}
 

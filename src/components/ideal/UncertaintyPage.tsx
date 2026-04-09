@@ -78,7 +78,7 @@ export default function UncertaintyPage({ onProceed, onCancel, onBack, needsVisi
               fontStyle: 'italic',
               transition: 'color 0.2s ease',
             }}>
-              Three resources have been installed in your databank. Explore at your own pace, or proceed when ready.
+              Three resources have been installed in your databank. Click on them to explore, or proceed when ready.
             </p>
           </div>
         </div>
