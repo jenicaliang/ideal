@@ -18,7 +18,7 @@ export default function IdealWindow({
   onMinimize, onClose, onReachUncertainty, isMinimized, zIndex, onFocus,
   onOpenFolder, onDownloadCatalog, onThemeChange, chromeColor, chromeBorder,
   onGoalsMount, goalScorerOpened, onEndpointsMount,
-  refuseAttempt, onRefuse, onFinalEscape, needsVisited
+  refuseAttempt, onRefuse, onFinalEscape, needsVisited, onJoin
 }) {
   const [pos, setPos] = useState(null)
   const [phase, setPhase] = useState(refuseAttempt > 0 ? 'refuse' : 'mitosis')
@@ -63,7 +63,6 @@ export default function IdealWindow({
     onClose()
   }
 
-  // X button during refuse phase acts as escape, not close warning
   const handleXClick = (e) => {
     e.stopPropagation()
     if (isRefusePhase) {
@@ -210,8 +209,9 @@ export default function IdealWindow({
 
           {phase === 'cta' && (
             <CTAPage
-              onProceed={() => setPhase('join')}
+              onProceed={() => setPhase('cta')}
               onRefuse={onRefuse}
+              onJoin={onJoin}
             />
           )}
 
@@ -220,18 +220,13 @@ export default function IdealWindow({
               attempt={refuseAttempt}
               onProceed={() => setPhase('cta')}
               onEscape={refuseAttempt >= 3 ? onFinalEscape : onRefuse}
+              onJoin={onJoin}
             />
-          )}
-
-          {phase === 'join' && (
-            <div style={{ width: '100%', height: '100%', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <p style={{ fontFamily: 'var(--mono)', color: 'rgba(255,255,255,0.3)', fontSize: 14, letterSpacing: '0.1em' }}>JOIN ENDING — TBD</p>
-            </div>
           )}
         </div>
       </div>
 
-      {/* Close warning — only shown during non-refuse phases */}
+      {/* Close warning */}
       {showCloseWarning && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.85)' }}>
           <div style={{ width: 'clamp(300px, 34.7vw, 560px)', backgroundColor: 'var(--black)', border: '2px solid var(--teal-bright)', padding: 'clamp(20px, 2.78vw, 44px)', textAlign: 'center' }}>

@@ -78,13 +78,13 @@ export default function DirectiveNotification({ onDismiss, apiKey }: {
 }) {
   const [visible, setVisible] = useState(false)
   const [directive, setDirective] = useState<string | null>(null)
+  const [phase, setPhase] = useState<'directive' | 'meta'>('directive')
   const hasFired = useRef(false)
 
   useEffect(() => {
     fetchDirective(apiKey)
       .then(d => {
         setDirective(d)
-        // Small delay after directive is ready before showing
         setTimeout(() => {
           setVisible(true)
           if (!hasFired.current) {
@@ -106,11 +106,22 @@ export default function DirectiveNotification({ onDismiss, apiKey }: {
   }, [])
 
   function handleClick() {
-    setVisible(false)
-    setTimeout(onDismiss, 500)
+    if (phase === 'directive') {
+      // slide out, then switch to meta and slide back in
+      setVisible(false)
+      setTimeout(() => {
+        setPhase('meta')
+        setTimeout(() => setVisible(true), 80)
+      }, 450)
+    } else {
+      setVisible(false)
+      setTimeout(onDismiss, 500)
+    }
   }
 
   if (!directive) return null
+
+  const isMeta = phase === 'meta'
 
   return (
     <div
@@ -129,8 +140,8 @@ export default function DirectiveNotification({ onDismiss, apiKey }: {
       }}
     >
       <div style={{
-        background: '#f5f3ef',
-        border: '1px solid #1e1e1e',
+        background: isMeta ? '#1e1e1e' : '#f5f3ef',
+        border: `1px solid ${isMeta ? '#f5f3ef' : '#1e1e1e'}`,
         padding: '12px 14px',
       }}>
         <div style={{
@@ -146,12 +157,12 @@ export default function DirectiveNotification({ onDismiss, apiKey }: {
             textTransform: 'uppercase',
             color: '#b04a2f',
           }}>
-            IDEAL
+            {isMeta ? 'Note' : 'IDEAL'}
           </span>
           <span style={{
             fontFamily: "'Reddit Mono', monospace",
             fontSize: 10,
-            color: '#9a9690',
+            color: isMeta ? 'rgba(245,243,239,0.4)' : '#9a9690',
             letterSpacing: '0.06em',
           }}>
             Now
@@ -162,11 +173,13 @@ export default function DirectiveNotification({ onDismiss, apiKey }: {
           fontFamily: "'DM Sans', sans-serif",
           fontSize: 14,
           fontWeight: 300,
-          color: '#1e1e1e',
+          color: isMeta ? '#f5f3ef' : '#1e1e1e',
           lineHeight: 1.5,
           margin: '0 0 10px 0',
         }}>
-          {directive}
+          {isMeta
+            ? "That's what a real IDEAL directive looks like."
+            : directive}
         </p>
 
         <div style={{
@@ -174,13 +187,13 @@ export default function DirectiveNotification({ onDismiss, apiKey }: {
           fontSize: 9,
           letterSpacing: '0.12em',
           textTransform: 'uppercase',
-          color: '#9a9690',
+          color: isMeta ? 'rgba(245,243,239,0.4)' : '#9a9690',
           opacity: 0.6,
         }}>
           Click to dismiss
         </div>
       </div>
-      <div style={{ height: 2, background: '#1e1e1e' }} />
+      <div style={{ height: 2, background: isMeta ? '#f5f3ef' : '#1e1e1e' }} />
     </div>
   )
 }

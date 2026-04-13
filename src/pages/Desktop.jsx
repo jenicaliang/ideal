@@ -22,6 +22,7 @@ import DevicesWindow from '../components/desktop/DevicesWindow'
 import GoalScorerWindow from '../components/desktop/GoalScorerWindow'
 import DirectiveNotification from '../components/desktop/DirectiveNotification'
 import TerminalWindow from '../components/desktop/TerminalWindow'
+import JoinEnding from '../components/desktop/JoinEnding'
 
 // Full-screen glitch overlay for final escape
 function FinalGlitch({ onDone }) {
@@ -59,9 +60,23 @@ function FinalGlitch({ onDone }) {
           80%  { opacity: 0; }
           100% { opacity: 0; }
         }
+        @keyframes flickerOut {
+          0%   { opacity: 1; }
+          33%  { opacity: 0; }
+          66%  { opacity: 0.8; }
+          100% { opacity: 0; }
+        }
       `}</style>
     </div>
   )
+}
+
+function flickerStyle(visible) {
+  if (visible) return {}
+  return {
+    animation: 'flickerOut 0.25s steps(3) forwards',
+    pointerEvents: 'none',
+  }
 }
 
 export default function Desktop({
@@ -70,6 +85,7 @@ export default function Desktop({
   showAbout,
   onAbout,
   onCloseAbout,
+  enableAudio
 }) {
   const [topNote, setTopNote] = useState(null)
   const [installedApps, setInstalledApps] = useState([])
@@ -117,6 +133,23 @@ export default function Desktop({
   const [showFinalGlitch, setShowFinalGlitch] = useState(false)
   const refuseTimerRef = useRef(null)
 
+  // Join ending sequence
+  const [joiningEnding, setJoiningEnding] = useState(false)
+  const [joinPhase, setJoinPhase] = useState(0)
+  const [joinDone, setJoinDone] = useState(false)
+
+  // Visibility flags driven by joinPhase
+  const showBg = joinPhase < 1
+  const showBreaking = joinPhase < 2
+  const showTaskbarEl = joinPhase < 2
+  const showTicker = joinPhase < 3
+  const showColorScr = joinPhase < 4
+  const showLiveMode = joinPhase < 5
+  const showCamMusic = joinPhase < 6
+  const showStickies = joinPhase < 7
+  const showHabit = joinPhase < 8
+  const showLauncher = joinPhase < 9
+
   const FOLDER_Z = 9999
   const IDEAL_MAX_Z = FOLDER_Z - 1
 
@@ -124,6 +157,28 @@ export default function Desktop({
   const zCounter = useRef(500)
 
   const [theme, setTheme] = useState('teal')
+  const desktopDesaturated = idealVisible && !idealMinimized
+
+  const handleJoin = useCallback(() => {
+    setIdealVisible(false)
+    setIdealMinimized(false)
+    setFolderVisible(false)
+    setFolderMinimized(false)
+    setShowNeedsWindow(false)
+    setShowToolsWindow(false)
+    setShowWorldWindow(false)
+    setShowDevicesWindow(false)
+    setShowGoalScorerWindow(false)
+    setShowTerminalWindow(false)
+    setShowDirective(false)
+
+    setJoiningEnding(true)
+    const phases = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  phases.forEach((phase, i) => {
+    setTimeout(() => setJoinPhase(phase), 600 + i * 1200)
+  })
+  setTimeout(() => setJoinDone(true), 600 + phases.length * 1200 + 400)
+}, [])
 
   const handleAccept = useCallback(() => {
     setIdealVisible(true)
@@ -176,7 +231,6 @@ export default function Desktop({
     setInstalledApps(prev => prev.includes('terminal') ? prev : [...prev, 'terminal'])
   }, [])
 
-  // Refuse: close silently, schedule re-launch
   const handleRefuse = useCallback(() => {
     setIdealVisible(false)
     setIdealMinimized(false)
@@ -194,7 +248,6 @@ export default function Desktop({
     })
   }, [])
 
-  // Final escape from re-launch 3: close window, show desktop glitch
   const handleFinalEscape = useCallback(() => {
     setIdealVisible(false)
     setIdealMinimized(false)
@@ -203,10 +256,8 @@ export default function Desktop({
 
   const handleFinalGlitchDone = useCallback(() => {
     setShowFinalGlitch(false)
-    // Window stays closed, icon remains — user must right-click to remove
   }, [])
 
-  // Remove icon: true ending
   const handleRemoveIcon = useCallback(() => {
     setIconContextMenu(null)
     setIconRemoved(true)
@@ -222,7 +273,6 @@ export default function Desktop({
     setIconContextMenu({ x: e.clientX, y: e.clientY })
   }, [])
 
-  
   const folderInstalledFiles = useMemo(() => [
     installedApps.includes('needs') ? { id: 'needs', label: 'MASLOWS_NEEDS', type: '.exe', onReset: () => setNeedsResetKey(k => k + 1) } : null,
     installedApps.includes('tools') ? { id: 'tools', label: 'PRECEDENTS', type: '.exe', onReset: () => setToolsResetKey(k => k + 1) } : null,
@@ -242,14 +292,12 @@ export default function Desktop({
 
   const handleFolderFileClick = useCallback(id => {
     if (id === 'needs') {
-  console.log('needs clicked, setting visited')
-  setNeedsVisited(true)
-  setShowNeedsWindow(true)
-  setNeedsMinimized(false)
-  zCounter.current += 1
-  setNeedsZ(zCounter.current)
-}
-
+      setNeedsVisited(true)
+      setShowNeedsWindow(true)
+      setNeedsMinimized(false)
+      zCounter.current += 1
+      setNeedsZ(zCounter.current)
+    }
     else if (id === 'tools') { setShowToolsWindow(true); setToolsMinimized(false); zCounter.current += 1; setToolsZ(zCounter.current) }
     else if (id === 'world') { setShowWorldWindow(true); setWorldMinimized(false); zCounter.current += 1; setWorldZ(zCounter.current) }
     else if (id === 'devices') { setShowDevicesWindow(true); setDevicesMinimized(false); zCounter.current += 1; setDevicesZ(zCounter.current) }
@@ -265,134 +313,200 @@ export default function Desktop({
 
   return (
     <div
-      style={{ width: '100vw', height: '100vh', backgroundColor: 'var(--teal-deep)', position: 'relative', overflow: 'hidden' }}
+      style={{
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: joiningEnding ? '#f5f3ef' : 'var(--teal-deep)',
+        transition: 'background-color 0.4s ease',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
       onClick={() => iconContextMenu && setIconContextMenu(null)}
     >
-      <RoomBackground />
-      <Ticker />
+      <style>{`
+        @keyframes flickerOut {
+          0%   { opacity: 1; }
+          33%  { opacity: 0; }
+          66%  { opacity: 0.8; }
+          100% { opacity: 0; }
+        }
+      `}</style>
 
-      <StickyNote
-        title="TO-DO LIST" initialX={0.26} initialY={0.37} fontSize="clamp(15px, 1vw, 24px)"
-        zIndex={topNote === 'todo' ? 30 : 20} onFocus={() => setTopNote('todo')}
-        items={['URGENT', 'O Call Mom', 'O Apply to AT LEAST 10 jobs', 'O Meal prep', 'O Email landlord about leak', '', 'DO BY END OF WEEK!!!', 'O User journey outline', 'O Finish paper edits', 'O Sign up for volunteering', 'O Book dentist appointment']}
-        error="nice try."
-      />
-      <StickyNote
-        title="!!!" initialX={0.37} initialY={0.22} fontSize="clamp(16px, 1.5vw, 32px)"
-        zIndex={topNote === 'affirmation' ? 30 : 20} onFocus={() => setTopNote('affirmation')}
-        items={['"Become addicted', 'to constant and', 'never-ending self', 'improvement."']}
-        error="you need this one."
-      />
+      <div style={{
+        filter: desktopDesaturated ? 'grayscale(1)' : 'grayscale(0)',
+        transition: 'filter 0.6s ease',
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+      }}>
+        <div style={{ pointerEvents: 'auto' }}>
 
-      <MoodSelector />
-      <CameraLog />
-      <BreakingNews />
-      <ColorScroller />
-      <MusicPlayer />
-      <LiveIndicator />
-      <HabitTracker />
-      <NoteToSelf />
+          {/* Background */}
+          <div style={flickerStyle(showBg)}>
+            <RoomBackground />
+          </div>
 
-      <Taskbar
-        isMonochrome={isMonochrome} onMonochrome={onMonochrome} onAbout={onAbout}
-        idealActive={idealMinimized} onRestoreIdeal={handleIdealRestore}
-        needsActive={needsMinimized} onRestoreNeeds={() => setNeedsMinimized(false)}
-        toolsActive={toolsMinimized} onRestoreTools={() => setToolsMinimized(false)}
-        worldActive={worldMinimized} onRestoreWorld={() => setWorldMinimized(false)}
-        folderActive={folderMinimized} onRestoreFolder={() => { setFolderMinimized(false); setFolderVisible(true); zCounter.current += 1 }}
-        devicesActive={devicesMinimized} onRestoreDevices={() => setDevicesMinimized(false)}
-        goalScorerActive={goalScorerMinimized} onRestoreGoalScorer={() => setGoalScorerMinimized(false)}
-      />
+          {/* Ticker */}
+          <div style={flickerStyle(showTicker)}>
+            <Ticker />
+          </div>
+
+          {/* Sticky notes + NoteToSelf */}
+          <div style={flickerStyle(showStickies)}>
+            <StickyNote
+              title="TO-DO LIST" initialX={0.26} initialY={0.37} fontSize="clamp(15px, 1vw, 24px)"
+              zIndex={topNote === 'todo' ? 30 : 20} onFocus={() => setTopNote('todo')}
+              items={['# URGENT', 'Call Mom', 'Apply to AT LEAST 10 jobs', 'Meal prep', 'Email landlord about leak', '', '# DO BY END OF WEEK!!!', 'User journey outline', 'Finish paper edits', 'Sign up for volunteering', 'Book dentist appointment']}
+              error="nice try."
+            />
+            <StickyNote
+              static
+              width="clamp(120px, 16vw, 300px)"
+              title="!!!" initialX={0.37} initialY={0.22} fontSize="clamp(16px, 1.5vw, 32px)"
+              zIndex={topNote === 'affirmation' ? 30 : 20} onFocus={() => setTopNote('affirmation')}
+              items={['"Become addicted \n to constant and \n never-ending self \n improvement."']}
+              error="you need this one."
+            />
+            <NoteToSelf />
+          </div>
+
+          {/* MoodSelector + LiveIndicator */}
+          <div style={flickerStyle(showLiveMode)}>
+            <MoodSelector />
+            <LiveIndicator />
+          </div>
+
+          {/* CameraLog + MusicPlayer */}
+          <div style={flickerStyle(showCamMusic)}>
+            <CameraLog />
+            <MusicPlayer enableAudio={enableAudio} />
+          </div>
+
+          {/* BreakingNews */}
+          <div style={flickerStyle(showBreaking)}>
+            <BreakingNews />
+          </div>
+
+          {/* ColorScroller */}
+          <div style={flickerStyle(showColorScr)}>
+            <ColorScroller />
+          </div>
+
+          {/* HabitTracker */}
+          <div style={flickerStyle(showHabit)}>
+            <HabitTracker />
+          </div>
+
+          {/* Taskbar */}
+          <div style={flickerStyle(showTaskbarEl)}>
+            <Taskbar
+              isMonochrome={isMonochrome} onMonochrome={onMonochrome} onAbout={onAbout}
+              idealActive={idealMinimized} onRestoreIdeal={handleIdealRestore}
+              needsActive={needsMinimized} onRestoreNeeds={() => setNeedsMinimized(false)}
+              toolsActive={toolsMinimized} onRestoreTools={() => setToolsMinimized(false)}
+              worldActive={worldMinimized} onRestoreWorld={() => setWorldMinimized(false)}
+              folderActive={folderMinimized} onRestoreFolder={() => { setFolderMinimized(false); setFolderVisible(true); zCounter.current += 1 }}
+              devicesActive={devicesMinimized} onRestoreDevices={() => setDevicesMinimized(false)}
+              goalScorerActive={goalScorerMinimized} onRestoreGoalScorer={() => setGoalScorerMinimized(false)}
+            />
+          </div>
+
+        </div>
+      </div>
 
       {showAbout && <AboutWindow onClose={onCloseAbout} />}
 
-      {installedApps.includes('folder') && (
-        <div
-          onClick={() => { setFolderVisible(true); setFolderMinimized(false); zCounter.current += 1 }}
-          style={{ position: 'absolute', left: '55vw', top: '45vh', zIndex: 50, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5vh', userSelect: 'none' }}
-        >
-          <div style={{ width: ICON_SIZE, height: ICON_SIZE, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg viewBox="0 0 64 64" width="100%" height="100%">
-              <path d="M6 18h22l6 6h24v28H6z" fill="var(--teal-deep)" stroke="var(--teal-bright)" strokeWidth="3" shapeRendering="crispEdges" />
-              <path d="M6 18h22l4 4H6z" fill="var(--teal-deep)" stroke="var(--teal-bright)" strokeWidth="3" shapeRendering="crispEdges" />
-            </svg>
+      {/* Folder icon on desktop */}
+      <div style={flickerStyle(showLauncher)}>
+        {installedApps.includes('folder') && (
+          <div
+            onClick={() => { setFolderVisible(true); setFolderMinimized(false); zCounter.current += 1 }}
+            style={{ position: 'absolute', left: '55vw', top: '45vh', zIndex: 50, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5vh', userSelect: 'none' }}
+          >
+            <div style={{ width: ICON_SIZE, height: ICON_SIZE, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <svg viewBox="0 0 64 64" width="100%" height="100%">
+                <path d="M6 18h22l6 6h24v28H6z" fill="var(--teal-deep)" stroke="var(--teal-bright)" strokeWidth="3" shapeRendering="crispEdges" />
+                <path d="M6 18h22l4 4H6z" fill="var(--teal-deep)" stroke="var(--teal-bright)" strokeWidth="3" shapeRendering="crispEdges" />
+              </svg>
+            </div>
+            <span style={{ color: 'var(--white)', fontFamily: 'var(--font-mono)', fontSize: ICON_FONT, textAlign: 'center', backgroundColor: 'rgba(0,0,0,0.8)', padding: '1px 0.31vw' }}>
+              YOUR_IDEAL_LIFE
+            </span>
           </div>
-          <span style={{ color: 'var(--white)', fontFamily: 'var(--font-mono)', fontSize: ICON_FONT, textAlign: 'center', backgroundColor: 'rgba(0,0,0,0.8)', padding: '1px 0.31vw' }}>
-            YOUR_IDEAL_LIFE
-          </span>
-        </div>
-      )}
+        )}
 
-      {!iconRemoved && (
-        <IdealLauncher
-          onAccept={handleAccept}
-          onDecline={() => { }}
-          onRestoreWindow={idealVisible || idealMinimized ? handleIdealRestore : null}
-          onContextMenu={refuseAttempt >= 3 && !showFinalGlitch ? handleIconContextMenu : undefined}
-        />
-      )}
+        {!iconRemoved && (
+          <IdealLauncher
+            onAccept={handleAccept}
+            onDecline={() => { }}
+            onRestoreWindow={idealVisible || idealMinimized ? handleIdealRestore : null}
+            onContextMenu={refuseAttempt >= 3 && !showFinalGlitch ? handleIconContextMenu : undefined}
+          />
+        )}
 
-      {idealVisible && !idealClosed && (
-        <IdealWindow
-          key={idealKey}
-          onMinimize={() => setIdealMinimized(true)}
-          onClose={handleIdealClose}
-          onReachUncertainty={handleReachUncertainty}
-          isMinimized={idealMinimized}
-          needsVisited={needsVisited}
-          onDownloadCatalog={handleDownloadCatalog}
-          onEndpointsMount={handleEndpointsMount}
-          zIndex={idealZ}
-          onFocus={() => { zCounter.current += 1; setIdealZ(Math.min(zCounter.current, IDEAL_MAX_Z)) }}
-          onOpenFolder={handleOpenFolder}
-          onThemeChange={() => setTheme('red')}
-          chromeColor={chromeColor}
-          chromeBorder={chromeBorder}
-          onGoalsMount={handleInstallGoalScorer}
-          onGoalScorerOpened={() => setGoalScorerOpened(true)}
-          goalScorerOpened={goalScorerOpened}
-          refuseAttempt={refuseAttempt}
-          onRefuse={handleRefuse}
-          onFinalEscape={handleFinalEscape}
-        />
-      )}
+        {idealVisible && !idealClosed && (
+          <IdealWindow
+            key={idealKey}
+            onMinimize={() => setIdealMinimized(true)}
+            onClose={handleIdealClose}
+            onReachUncertainty={handleReachUncertainty}
+            isMinimized={idealMinimized}
+            needsVisited={needsVisited}
+            onDownloadCatalog={handleDownloadCatalog}
+            onEndpointsMount={handleEndpointsMount}
+            zIndex={idealZ}
+            onFocus={() => { zCounter.current += 1; setIdealZ(Math.min(zCounter.current, IDEAL_MAX_Z)) }}
+            onOpenFolder={handleOpenFolder}
+            onThemeChange={() => setTheme('red')}
+            chromeColor={chromeColor}
+            chromeBorder={chromeBorder}
+            onGoalsMount={handleInstallGoalScorer}
+            onGoalScorerOpened={() => setGoalScorerOpened(true)}
+            goalScorerOpened={goalScorerOpened}
+            refuseAttempt={refuseAttempt}
+            onRefuse={handleRefuse}
+            onFinalEscape={handleFinalEscape}
+            onJoin={handleJoin}
+          />
+        )}
 
-      {installedApps.includes('folder') && (
-        <FolderWindow
-          installedFiles={folderInstalledFiles} onFileClick={handleFolderFileClick}
-          onClose={() => { setFolderVisible(false); setFolderMinimized(false) }}
-          onFocus={() => { }} onMinimize={() => setFolderMinimized(true)}
-          zIndex={FOLDER_Z} isMinimized={folderMinimized || !folderVisible}
-          chromeColor={chromeColor} chromeBorder={chromeBorder} chromeButtonColor={chromeButtonColor}
-        />
-      )}
+        {installedApps.includes('folder') && (
+          <FolderWindow
+            installedFiles={folderInstalledFiles} onFileClick={handleFolderFileClick}
+            onClose={() => { setFolderVisible(false); setFolderMinimized(false) }}
+            onFocus={() => { }} onMinimize={() => setFolderMinimized(true)}
+            zIndex={FOLDER_Z} isMinimized={folderMinimized || !folderVisible}
+            chromeColor={chromeColor} chromeBorder={chromeBorder} chromeButtonColor={chromeButtonColor}
+          />
+        )}
 
-      {installedApps.includes('needs') && (
-        <NeedsWindow key={`needs-${needsResetKey}`} onClose={() => setShowNeedsWindow(false)} onFocus={() => { zCounter.current += 1; setNeedsZ(zCounter.current) }} onMinimize={() => setNeedsMinimized(true)} zIndex={needsZ} isMinimized={needsMinimized || !showNeedsWindow} />
-      )}
-      {installedApps.includes('tools') && (
-        <ToolsWindow key={`tools-${toolsResetKey}`} onClose={() => setShowToolsWindow(false)} onFocus={() => { zCounter.current += 1; setToolsZ(zCounter.current) }} onMinimize={() => setToolsMinimized(true)} zIndex={toolsZ} isMinimized={toolsMinimized || !showToolsWindow} />
-      )}
-      {installedApps.includes('world') && (
-        <WorldWindow key={`world-${worldResetKey}`} onClose={() => setShowWorldWindow(false)} onFocus={() => { zCounter.current += 1; setWorldZ(zCounter.current) }} onMinimize={() => setWorldMinimized(true)} zIndex={worldZ} isMinimized={worldMinimized || !showWorldWindow} />
-      )}
-      {installedApps.includes('devices') && (
-        <DevicesWindow onClose={() => setShowDevicesWindow(false)} onFocus={() => { zCounter.current += 1; setDevicesZ(zCounter.current) }} onMinimize={() => setDevicesMinimized(true)} zIndex={devicesZ} isMinimized={devicesMinimized || !showDevicesWindow} />
-      )}
-      {installedApps.includes('goalscorer') && (
-        <GoalScorerWindow onClose={() => setShowGoalScorerWindow(false)} onFocus={() => { zCounter.current += 1; setGoalScorerZ(zCounter.current) }} onMinimize={() => setGoalScorerMinimized(true)} onOpen={() => setGoalScorerOpened(true)} zIndex={goalScorerZ} isMinimized={goalScorerMinimized || !showGoalScorerWindow} apiKey={import.meta.env.VITE_ANTHROPIC_KEY} />
-      )}
-      {showDirective && (
-        <DirectiveNotification onDismiss={() => setShowDirective(false)} apiKey={import.meta.env.VITE_ANTHROPIC_KEY} />
-      )}
-      {installedApps.includes('terminal') && (
-        <TerminalWindow onClose={() => setShowTerminalWindow(false)} onFocus={() => { zCounter.current += 1; setTerminalZ(zCounter.current) }} onMinimize={() => setTerminalMinimized(true)} zIndex={terminalZ} isMinimized={terminalMinimized || !showTerminalWindow} />
-      )}
+        {installedApps.includes('needs') && (
+          <NeedsWindow key={`needs-${needsResetKey}`} onClose={() => setShowNeedsWindow(false)} onFocus={() => { zCounter.current += 1; setNeedsZ(zCounter.current) }} onMinimize={() => setNeedsMinimized(true)} zIndex={needsZ} isMinimized={needsMinimized || !showNeedsWindow} />
+        )}
+        {installedApps.includes('tools') && (
+          <ToolsWindow key={`tools-${toolsResetKey}`} onClose={() => setShowToolsWindow(false)} onFocus={() => { zCounter.current += 1; setToolsZ(zCounter.current) }} onMinimize={() => setToolsMinimized(true)} zIndex={toolsZ} isMinimized={toolsMinimized || !showToolsWindow} />
+        )}
+        {installedApps.includes('world') && (
+          <WorldWindow key={`world-${worldResetKey}`} onClose={() => setShowWorldWindow(false)} onFocus={() => { zCounter.current += 1; setWorldZ(zCounter.current) }} onMinimize={() => setWorldMinimized(true)} zIndex={worldZ} isMinimized={worldMinimized || !showWorldWindow} />
+        )}
+        {installedApps.includes('devices') && (
+          <DevicesWindow onClose={() => setShowDevicesWindow(false)} onFocus={() => { zCounter.current += 1; setDevicesZ(zCounter.current) }} onMinimize={() => setDevicesMinimized(true)} zIndex={devicesZ} isMinimized={devicesMinimized || !showDevicesWindow} />
+        )}
+        {installedApps.includes('goalscorer') && (
+          <GoalScorerWindow onClose={() => setShowGoalScorerWindow(false)} onFocus={() => { zCounter.current += 1; setGoalScorerZ(zCounter.current) }} onMinimize={() => setGoalScorerMinimized(true)} onOpen={() => setGoalScorerOpened(true)} zIndex={goalScorerZ} isMinimized={goalScorerMinimized || !showGoalScorerWindow} apiKey={import.meta.env.VITE_ANTHROPIC_KEY} />
+        )}
+        {showDirective && (
+          <DirectiveNotification onDismiss={() => setShowDirective(false)} apiKey={import.meta.env.VITE_ANTHROPIC_KEY} />
+        )}
+        {installedApps.includes('terminal') && (
+          <TerminalWindow onClose={() => setShowTerminalWindow(false)} onFocus={() => { zCounter.current += 1; setTerminalZ(zCounter.current) }} onMinimize={() => setTerminalMinimized(true)} zIndex={terminalZ} isMinimized={terminalMinimized || !showTerminalWindow} />
+        )}
+      </div>
 
-      {/* Final escape glitch — full screen */}
+      {/* Final escape glitch */}
       {showFinalGlitch && <FinalGlitch onDone={handleFinalGlitchDone} />}
 
-      {/* Right-click context menu — only after final glitch completes */}
+      {/* Right-click context menu */}
       {iconContextMenu && !iconRemoved && (
         <>
           <div onClick={() => setIconContextMenu(null)} style={{ position: 'fixed', inset: 0, zIndex: 99998 }} />
@@ -425,6 +539,9 @@ export default function Desktop({
           </div>
         </div>
       )}
+
+      {/* Join ending — overlays everything once sequence is done */}
+      {joinDone && <JoinEnding onAbout={onAbout} />}
     </div>
   )
 }

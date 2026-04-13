@@ -413,8 +413,8 @@ export default function SampleDaysPage({ onProceed, onBack }: {
           height: "1px",
           backgroundColor: "rgba(255,255,255,0.08)",
         }} />
-        <PixelButton onClick={onBack} position="solo">{"< Back"}</PixelButton>
-        <PixelButton onClick={() => { if (isDone) onProceed() }} disabled={!isDone} position="solo">{"Next >"}</PixelButton>
+        <PixelButton onClick={onBack} position="solo" variant="dark">{"< Back"}</PixelButton>
+        <PixelButton onClick={() => { if (isDone) onProceed() }} disabled={!isDone} position="solo" variant="dark">{"Next >"}</PixelButton>
       </div>
     </div>
   )

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import React from "react"
+import PixelButton from "./shared/PixelButton"
 
 const css = (v: string) => `var(${v})`
 
@@ -266,24 +267,9 @@ export default function GoalsPage({
 
         {/* Continue */}
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button
-onClick={() => goalScorerOpened ? onProceed() : handleContinueAttempt()}
-            style={{
-              fontFamily: css("--mono"),
-              fontSize: css("--size-button"),
-              fontWeight: 400,
-              letterSpacing: "0.25em",
-              textTransform: "uppercase",
-              background: "transparent",
-              border: `1.5px solid ${goalScorerOpened ? DARK_INK : "rgba(245,243,239,0.2)"}`,
-              padding: "6px 18px",
-              color: goalScorerOpened ? DARK_INK : "rgba(245,243,239,0.2)",
-              cursor: goalScorerOpened ? "pointer" : "default",
-              transition: "border-color 0.3s ease, color 0.3s ease",
-            }}
-          >
+          <PixelButton onClick={onProceed} variant="dark">
             Continue &gt;
-          </button>
+          </PixelButton>
         </div>
       </div>
     </div>

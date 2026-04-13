@@ -5,9 +5,10 @@ function css(v: string) {
 }
 
 type RefusePageProps = {
-  attempt: number         // 1, 2, or 3
-  onProceed: () => void   // "Initialise IDEAL." — they caved
-  onEscape: () => void    // escape option / X button — triggers next re-launch or final glitch
+  attempt: number
+  onProceed: () => void
+  onEscape: () => void
+  onJoin: () => void
 }
 
 const MESSAGES = [
@@ -42,7 +43,7 @@ function glitchStr(str: string, intensity: number): string {
   }).join("")
 }
 
-export default function RefusePage({ attempt, onProceed, onEscape }: RefusePageProps) {
+export default function RefusePage({ attempt, onProceed, onEscape, onJoin}: RefusePageProps) {
   const [visible, setVisible] = useState(false)
   const [glitching, setGlitching] = useState(false)
   const [glitchText, setGlitchText] = useState("")
@@ -160,7 +161,7 @@ export default function RefusePage({ attempt, onProceed, onEscape }: RefusePageP
       </p>
 
       <button
-        onClick={onProceed}
+        onClick={onJoin}
         style={{
           background: "var(--red)",
           border: "none",

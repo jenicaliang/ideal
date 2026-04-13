@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 
-export default function MusicPlayer() {
+export default function MusicPlayer({ enableAudio = true }) {
   const [playing, setPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const draggingRef = useRef(false)
@@ -22,20 +22,21 @@ export default function MusicPlayer() {
       }
     }
 
-    const tryAutoplay = async () => {
-      try {
-        await audio.play()
-        setPlaying(true)
-      } catch (err) {}
-    }
-
     audio.addEventListener('timeupdate', updateProgress)
-    audio.addEventListener('canplay', tryAutoplay, { once: true })
-    tryAutoplay()
+
+    if (enableAudio) {
+      const tryAutoplay = async () => {
+        try {
+          await audio.play()
+          setPlaying(true)
+        } catch (err) {}
+      }
+      audio.addEventListener('canplay', tryAutoplay, { once: true })
+      tryAutoplay()
+    }
 
     return () => {
       audio.removeEventListener('timeupdate', updateProgress)
-      audio.removeEventListener('canplay', tryAutoplay)
     }
   }, [])
 
@@ -102,13 +103,13 @@ export default function MusicPlayer() {
   return (
     <div style={{
       position: 'absolute',
-      right: 'clamp(40px, 6.25vw, 120px)',   
-      top: '33vh',                          
+      right: 'clamp(40px, 6.25vw, 120px)',
+      top: '33vh',
       border: '3px solid var(--teal-deep)',
       zIndex: 20,
       userSelect: 'none',
     }}>
-      <audio ref={audioRef} src="/affirmations_432HZ.mp3" loop autoPlay />
+      <audio ref={audioRef} src="/affirmations_432HZ.mp3" loop />
 
       <div
         onClick={togglePlay}
@@ -121,7 +122,6 @@ export default function MusicPlayer() {
           cursor: 'pointer',
         }}
       >
-        {/* Album art circle */}
         <img
           src="/affirmations_432HZ_cover.webp"
           alt=""
@@ -137,7 +137,6 @@ export default function MusicPlayer() {
           }}
         />
 
-        {/* SVG scrubber */}
         <svg
           ref={circleRef}
           width={SIZE}
@@ -155,7 +154,7 @@ export default function MusicPlayer() {
           <circle
             cx={knobX}
             cy={knobY}
-            r={Math.round(SIZE * 0.05)}          /* 15/300 = 0.05 */
+            r={Math.round(SIZE * 0.05)}
             fill="var(--teal-bright)"
             stroke="var(--teal-deep)"
             strokeWidth="2"
@@ -164,7 +163,6 @@ export default function MusicPlayer() {
           />
         </svg>
 
-        {/* Playlist name */}
         <div style={{
           position: 'absolute',
           inset: 0,
@@ -177,7 +175,7 @@ export default function MusicPlayer() {
           <div style={{
             color: 'var(--magenta)',
             fontFamily: 'Arial Narrow, Arial, sans-serif',
-            fontSize: `clamp(20px, ${SIZE * 0.107}px, 52px)`,   /* 32/300 = 0.107 */
+            fontSize: `clamp(20px, ${SIZE * 0.107}px, 52px)`,
             fontWeight: '900',
             textAlign: 'center',
             lineHeight: '0.9',

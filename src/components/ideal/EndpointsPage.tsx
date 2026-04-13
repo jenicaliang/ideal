@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import React from "react"
+import PixelButton from "./shared/PixelButton"
 
 const css = (v: string) => `var(${v})`
 
@@ -17,7 +18,6 @@ const DEVICES = [
   { id: "tv", label: "TV & Display", description: "Passive environment integration. Evening review and next-day preview." },
 ] as const
 
-// Simple pixel SVG icons per device
 const ICONS: Record<string, React.ReactNode> = {
   laptop: (
     <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
@@ -81,47 +81,44 @@ export default function EndpointsPage({
       background: DARK_BG,
       display: "flex",
       flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
       overflow: "hidden",
       boxSizing: "border-box",
+      padding: "32px 28px",
     }}>
-      {/* Header */}
       <div style={{
-        padding: "20px 28px 16px",
-        borderBottom: `1px solid rgba(245,243,239,0.08)`,
-        flexShrink: 0,
-      }}>
-        <div style={{
-          fontFamily: css("--mono"),
-          fontSize: css("--size-label"),
-          letterSpacing: "0.25em",
-          textTransform: "uppercase",
-          color: DARK_RED,
-          marginBottom: 6,
-        }}>
-          04 — Endpoints
-        </div>
-        <p style={{
-          fontFamily: css("--sans"),
-          fontSize: css("--size-body"),
-          fontWeight: 300,
-          color: DARK_INK,
-          lineHeight: css("--lh-body"),
-          margin: 0,
-          maxWidth: 520,
-        }}>
-          With our extensive notification system, IDEAL delivers directives across every screen in your life.
-        </p>
-      </div>
-
-      {/* Device grid */}
-      <div style={{
-        flex: 1,
-        overflowY: "auto",
-        padding: "20px 28px",
+        width: "100%",
+        maxWidth: css("--content-width"),
         display: "flex",
         flexDirection: "column",
-        gap: 20,
+        gap: 24,
       }}>
+
+        {/* Header */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <div style={{
+            fontFamily: css("--mono"),
+            fontSize: css("--size-label"),
+            letterSpacing: "0.25em",
+            textTransform: "uppercase",
+            color: DARK_RED,
+          }}>
+            The last step: Endpoints
+          </div>
+          <p style={{
+            fontFamily: css("--sans"),
+            fontSize: css("--size-body"),
+            fontWeight: 300,
+            color: DARK_INK,
+            lineHeight: css("--lh-body"),
+            margin: 0,
+          }}>
+            With our extensive notification system, IDEAL delivers directives across every screen in your life.
+          </p>
+        </div>
+
+        {/* Device grid */}
         <div style={{
           display: "grid",
           gridTemplateColumns: "1fr 1fr 1fr",
@@ -158,20 +155,22 @@ export default function EndpointsPage({
           ))}
         </div>
 
-        {/* Terminal section */}
+        {/* Terminal card */}
         <div style={{
-          borderTop: `1px solid rgba(245,243,239,0.08)`,
-          paddingTop: 20,
+          border: `1px solid rgba(245,243,239,0.1)`,
+          padding: "14px 16px",
           display: "flex",
           flexDirection: "column",
+          alignItems: "center",
           gap: 10,
+          textAlign: "center",
         }}>
           <div style={{
             fontFamily: css("--mono"),
             fontSize: css("--size-label"),
             letterSpacing: "0.25em",
             textTransform: "uppercase",
-            color: DARK_MID,
+            color: DARK_INK,
           }}>
             IDEAL Terminal
           </div>
@@ -186,45 +185,24 @@ export default function EndpointsPage({
           }}>
             A dedicated hardware endpoint. Plain-text directives on a wraparound display. No notifications. No interface. Just the next right action.
           </p>
-          <div>
-            <div style={{
-              fontFamily: css("--mono"),
-              fontSize: css("--size-label"),
-              color: DARK_MID,
-              letterSpacing: "0.06em",
-              opacity: 0.5,
-            }}>
-              3D model available in your databank → IDEAL_TERMINAL.glb
-            </div>
+          <div style={{
+            fontFamily: css("--mono"),
+            fontSize: css("--size-label"),
+            color: DARK_MID,
+            letterSpacing: "0.06em",
+            opacity: 0.5,
+          }}>
+            View in your databank → IDEAL_TERMINAL.glb
           </div>
         </div>
-      </div>
 
-      {/* Nav */}
-      <div style={{
-        flexShrink: 0,
-        borderTop: `1px solid rgba(245,243,239,0.08)`,
-        padding: "12px 28px",
-        display: "flex",
-        justifyContent: "flex-end",
-      }}>
-        <button
-          onClick={onProceed}
-          style={{
-            fontFamily: css("--mono"),
-            fontSize: css("--size-button"),
-            fontWeight: 400,
-            letterSpacing: "0.25em",
-            textTransform: "uppercase",
-            background: "transparent",
-            border: `1.5px solid ${DARK_INK}`,
-            padding: "6px 18px",
-            color: DARK_INK,
-            cursor: "pointer",
-          }}
-        >
-          Continue &gt;
-        </button>
+        {/* Nav */}
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
+          <PixelButton onClick={onProceed} variant="dark">
+            Continue &gt;
+          </PixelButton>
+        </div>
+
       </div>
     </div>
   )

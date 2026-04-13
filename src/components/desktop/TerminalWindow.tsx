@@ -11,10 +11,16 @@ const THREE_SCRIPTS = [
 ]
 
 const DIRECTIVES = [
-  "BEGIN YOUR DAY EARLIER",
-  "DELAY YOUR REPLY\nBY 12 MINUTES",
-  "CHOOSE THE\nHIGHER-YIELD OPTION",
-  "REDUCE IDLE TIME NOW",
+  "TAKE 15 MINUTES\nAWAY FROM THE SCREEN",
+  "START DINNER\nIN 10 MINUTES",
+  "REPLY TO TEXT\nABOUT LUNCH",
+  "DRINK WATER\nBEFORE CONTINUING",
+  "CLOSE LOWEST-PRIORITY\nTAB NOW",
+  "STAND UP\nFOR 5 MINUTES",
+  "SEND THE EMAIL\nYOU'VE BEEN DELAYING",
+  "REVIEW TOMORROW'S\nCALENDAR TONIGHT",
+  "PUT YOUR PHONE\nFACE DOWN",
+  "BEGIN WINDING DOWN\nIN 20 MINUTES",
 ]
 
 function loadScript(src: string): Promise<void> {
@@ -295,7 +301,7 @@ textPlane.position.add(normal.multiplyScalar(0.0002))
   }, [visible])
 
   return (
-    <div ref={mountRef} style={{ width: "100%", height: "100%", cursor: "grab", position: "relative", background: "#e8e6e1" }}>
+    <div ref={mountRef} style={{ width: "100%", height: "100%", cursor: "grab", position: "relative", background: "#1e1e1e" }}>
       {loading && !error && (
         <div style={{
           position: "absolute", inset: 0,

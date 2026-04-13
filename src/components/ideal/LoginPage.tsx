@@ -103,11 +103,20 @@ function WebcamCapture({ onCaptured }: { onCaptured: (v: boolean) => void }) {
   onCaptured(true)
 }
 
-  function recapture() {
+  async function recapture() {
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({ video: { width: 128, height: 128 }, audio: false })
+    if (videoRef.current) {
+      videoRef.current.srcObject = s
+      await videoRef.current.play()
+    }
     setStatus('active')
     onCaptured(false)
     loopRef.current = setInterval(drawPixelFrame, 80)
+  } catch {
+    setStatus('idle')
   }
+}
 
   const statusText = {
     idle: 'Camera inactive.',
@@ -248,15 +257,18 @@ export default function LoginPage({ onComplete, onCancel, initialStep = 'headlin
   }, [])
 
   function handleReady() {
-    if (!captured) {
-      setErrorVisible(true)
-      if (errorTimer.current) clearTimeout(errorTimer.current)
-      errorTimer.current = setTimeout(() => setErrorVisible(false), 2800)
-      return
-    }
-    onComplete()
+  if (!captured) {
+    setErrorVisible(true)
+    if (errorTimer.current) clearTimeout(errorTimer.current)
+    errorTimer.current = setTimeout(() => setErrorVisible(false), 2800)
+    return
   }
-
+  // stop any lingering stream before navigating
+  const video = document.querySelector('video') as HTMLVideoElement | null
+  const s = video?.srcObject as MediaStream | null
+  s?.getTracks().forEach(t => t.stop())
+  onComplete()
+}
   return (
     <div style={{
       width: '100%',

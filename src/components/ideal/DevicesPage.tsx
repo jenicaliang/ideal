@@ -21,7 +21,7 @@ const DEVICES = [
     id: "biopill",
     name: "Biopill",
     dataType: "Internal environmental data",
-    description: "A dissolvable capsule that travels through the body and logs essential biodata.",
+    description: "A dissolvable capsule that travels through the body through the intestional tract and logs essential biodata.",
     modelSrc: `${GITHUB_RAW}/Pills.glb`,
     modelPlaceholder: "B",
   },
@@ -273,7 +273,7 @@ export default function DevicesPage() {
           <div style={{
             position: "absolute",
             bottom: 14,
-            left: 18,
+            left: 24,
             fontFamily: "var(--mono)",
             fontSize: 10,
             letterSpacing: "0.22em",
@@ -298,6 +298,7 @@ export default function DevicesPage() {
           <p style={{
             fontFamily: "var(--mono)",
             fontSize: 10,
+            paddingBottom: 7,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
             color: "var(--red)",
@@ -350,6 +351,7 @@ export default function DevicesPage() {
             border: "none",
             cursor: "pointer",
             padding: 0,
+            visibility: idx === 0 ? 'hidden' : 'visible',
           }}
         >
           ← Prev
@@ -375,6 +377,7 @@ export default function DevicesPage() {
             border: "none",
             cursor: "pointer",
             padding: 0,
+            visibility: idx === DEVICES.length - 1 ? 'hidden' : 'visible',
           }}
         >
           Next →

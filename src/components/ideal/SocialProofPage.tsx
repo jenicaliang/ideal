@@ -5,6 +5,11 @@ function css(v: string) {
     return `var(${v})`
 }
 
+const DARK_BG = "#1e1e1e"
+const DARK_INK = "#f5f3ef"
+const DARK_MID = "rgba(245,243,239,0.45)"
+const DARK_RED = "#b04a2f"
+
 const CARDS = [
     {
         id: "work",
@@ -34,42 +39,32 @@ function ProfileSilhouette() {
         <div style={{
             width: 64,
             height: 64,
-            background: css("--mid"),
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            background: "rgba(245,243,239,0.08)",
             flexShrink: 0,
             position: "relative",
             overflow: "hidden",
         }}>
-            {/* Pixelated silhouette via layered divs */}
             {/* Head */}
             <div style={{
                 position: "absolute",
-                top: 10,
+                top: 8,
                 left: "50%",
                 transform: "translateX(-50%)",
-                width: 20,
-                height: 20,
-                background: css("--bg"),
-                imageRendering: "pixelated",
+                width: 18,
+                height: 18,
+                borderRadius: "50%",
+                background: DARK_MID,
             }} />
-            {/* Body */}
+            {/* Shoulders / body */}
             <div style={{
                 position: "absolute",
                 bottom: 0,
                 left: "50%",
                 transform: "translateX(-50%)",
-                width: 34,
-                height: 26,
-                background: css("--bg"),
-            }} />
-            {/* Scanline overlay */}
-            <div style={{
-                position: "absolute",
-                inset: 0,
-                backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 3px)",
-                pointerEvents: "none",
+                width: 38,
+                height: 24,
+                borderRadius: "50% 50% 0 0",
+                background: DARK_MID,
             }} />
         </div>
     )
@@ -112,8 +107,8 @@ function FlipCard({ card, flipped, onFlip }: {
                     inset: 0,
                     backfaceVisibility: "hidden",
                     WebkitBackfaceVisibility: "hidden",
-                    border: css("--border"),
-                    background: css("--bg"),
+                    border: `1px solid rgba(245,243,239,0.15)`,
+                    background: DARK_BG,
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "flex-start",
@@ -128,7 +123,7 @@ function FlipCard({ card, flipped, onFlip }: {
                             fontFamily: css("--sans"),
                             fontSize: 15,
                             fontWeight: 300,
-                            color: css("--ink"),
+                            color: DARK_INK,
                             lineHeight: css("--lh-body"),
                             margin: 0,
                             fontStyle: "italic",
@@ -140,7 +135,7 @@ function FlipCard({ card, flipped, onFlip }: {
                     <p style={{
                         fontFamily: css("--mono"),
                         fontSize: 11,
-                        color: css("--mid"),
+                        color: DARK_MID,
                         margin: 0,
                         letterSpacing: "0.04em",
                     }}>
@@ -155,8 +150,8 @@ function FlipCard({ card, flipped, onFlip }: {
                     backfaceVisibility: "hidden",
                     WebkitBackfaceVisibility: "hidden",
                     transform: "rotateY(180deg)",
-                    border: css("--border"),
-                    background: css("--ink"),
+                    border: `1px solid rgba(245,243,239,0.15)`,
+                    background: "rgba(245,243,239,0.06)",
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "space-between",
@@ -167,7 +162,7 @@ function FlipCard({ card, flipped, onFlip }: {
                         <p style={{
                             fontFamily: css("--mono"),
                             fontSize: 10,
-                            color: css("--mid"),
+                            color: DARK_RED,
                             margin: "0 0 6px 0",
                             letterSpacing: "0.08em",
                             textTransform: "uppercase",
@@ -178,7 +173,7 @@ function FlipCard({ card, flipped, onFlip }: {
                             fontFamily: css("--sans"),
                             fontSize: 14,
                             fontWeight: 300,
-                            color: css("--bg"),
+                            color: DARK_INK,
                             lineHeight: css("--lh-body"),
                             margin: 0,
                         }}>
@@ -187,13 +182,13 @@ function FlipCard({ card, flipped, onFlip }: {
                     </div>
 
                     <div style={{
-                        borderTop: "1px solid rgba(255,255,255,0.12)",
+                        borderTop: "1px solid rgba(245,243,239,0.1)",
                         paddingTop: 16,
                     }}>
                         <p style={{
                             fontFamily: css("--mono"),
                             fontSize: 10,
-                            color: css("--mid"),
+                            color: DARK_RED,
                             margin: "0 0 6px 0",
                             letterSpacing: "0.08em",
                             textTransform: "uppercase",
@@ -204,7 +199,7 @@ function FlipCard({ card, flipped, onFlip }: {
                             fontFamily: css("--sans"),
                             fontSize: 14,
                             fontWeight: 300,
-                            color: css("--bg"),
+                            color: DARK_INK,
                             lineHeight: css("--lh-body"),
                             margin: 0,
                         }}>
@@ -233,13 +228,11 @@ export default function SocialProofPage({ onProceed, onBack }: {
         setFlipped(prev => ({ ...prev, [id]: !prev[id] }))
     }
 
-    const allFlipped = CARDS.every(c => flipped[c.id])
-
     return (
         <div style={{
             width: "100%",
             height: "100%",
-            background: css("--bg"),
+            background: DARK_BG,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
@@ -274,7 +267,7 @@ export default function SocialProofPage({ onProceed, onBack }: {
                         fontSize: 11,
                         letterSpacing: "0.1em",
                         textTransform: "uppercase",
-                        color: css("--mid"),
+                        color: DARK_MID,
                         margin: 0,
                     }}>
                         User outcomes
@@ -283,11 +276,11 @@ export default function SocialProofPage({ onProceed, onBack }: {
                         fontFamily: css("--sans"),
                         fontSize: "var(--size-headline)",
                         fontWeight: 300,
-                        color: css("--ink"),
+                        color: DARK_INK,
                         margin: 0,
                         lineHeight: css("--lh-tight"),
                     }}>
-                        Don't take our word for it.
+                        Don't just take our word for it.
                     </h2>
                 </div>
 
@@ -312,24 +305,32 @@ export default function SocialProofPage({ onProceed, onBack }: {
 
             {/* BottomBar */}
             <div
-    onClick={e => e.stopPropagation()}
-    style={{
-        position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: 'clamp(8px, 1vh, 14px) clamp(12px, 1.5vw, 24px)',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: css('--bg'),
-        zIndex: 30,
-    }}
->
-    <div style={{ position: 'absolute', top: 0, left: 'clamp(12px, 1.5vw, 24px)', right: 'clamp(12px, 1.5vw, 24px)', height: '1px', backgroundColor: css('--mid'), opacity: 0.4 }} />
-    <PixelButton onClick={onBack} position="solo">{'< Back'}</PixelButton>
-   <PixelButton onClick={onProceed} position="solo">{'Next >'}</PixelButton>
-</div>
+                onClick={e => e.stopPropagation()}
+                style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: 'clamp(8px, 1vh, 14px) clamp(12px, 1.5vw, 24px)',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    backgroundColor: DARK_BG,
+                    zIndex: 30,
+                }}
+            >
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 'clamp(12px, 1.5vw, 24px)',
+                    right: 'clamp(12px, 1.5vw, 24px)',
+                    height: '1px',
+                    backgroundColor: DARK_MID,
+                    opacity: 0.4,
+                }} />
+                <PixelButton onClick={onBack} position="solo" variant="dark">{'< Back'}</PixelButton>
+                <PixelButton onClick={onProceed} position="solo" variant="dark">{'Next >'}</PixelButton>
+            </div>
         </div>
     )
 }

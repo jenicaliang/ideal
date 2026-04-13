@@ -4,9 +4,11 @@ function css(v: string) {
   return `var(${v})`
 }
 
-export default function CTAPage({ onProceed, onRefuse }: {
+export default function CTAPage({ onProceed, onRefuse, onJoin}: {
   onProceed: () => void
   onRefuse: () => void
+  onJoin: () => void
+
 }) {
   const [visible, setVisible] = useState(false)
 
@@ -56,7 +58,7 @@ export default function CTAPage({ onProceed, onRefuse }: {
       </h2>
 
       <button
-        onClick={onProceed}
+        onClick={onJoin}
         style={{
           background: "var(--red)",
           border: "none",

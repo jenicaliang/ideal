@@ -8,6 +8,94 @@ export type InstalledFile = {
   onReset?: () => void
 }
 
+function FolderItem({ f, onFileClick }: { f: InstalledFile, onFileClick: (id: string) => void }) {
+  const [hovered, setHovered] = useState(false)
+
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '6px',
+        padding: '8px 4px',
+        boxSizing: 'border-box',
+      }}
+    >
+      {/* Clickable folder icon */}
+      <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', marginLeft: '33px' }}>
+        {hovered ? (
+          <svg
+            onClick={() => onFileClick(f.id)}
+            viewBox="0 0 209 157"
+            style={{ imageRendering: 'pixelated', flexShrink: 0, cursor: 'pointer', width: '68px', height: '50px' }}
+          >
+            <path d="M0 16H189V157H0V16Z" fill="var(--teal-deep)" />
+            <path d="M189 16V157H0V16H189ZM3 152H183V22H3V152Z" fill="var(--teal-bright)" />
+            <path d="M20 36H209L189 157H0L20 36Z" fill="var(--teal-deep)" />
+            <path d="M189 157H0L20 36H209L189 157ZM3.53711 154H186.455L205.463 39H22.5449L3.53711 154Z" fill="var(--teal-bright)" />
+            <path d="M0 0H70V19H0V0Z" fill="var(--teal-deep)" />
+            <path d="M70 0V19H0V0H70ZM3 16H67V3H3V16Z" fill="var(--teal-bright)" />
+            <path d="M33 61H131L128 78H30L33 61Z" fill="var(--teal-mid, #006772)" />
+          </svg>
+        ) : (
+          <svg
+            onClick={() => onFileClick(f.id)}
+            viewBox="0 0 20 17"
+            style={{ imageRendering: 'pixelated', flexShrink: 0, cursor: 'pointer', width: '62px', height: '50px' }}
+          >
+            <rect x="0" y="0" width="7" height="3" fill="var(--teal-deep)" />
+            <rect x="0" y="0" width="7" height="3" fill="none" stroke="var(--teal-bright)" strokeWidth="0.6" />
+            <rect x="0" y="2" width="20" height="14" fill="var(--teal-deep)" />
+            <rect x="0" y="2" width="20" height="14" fill="none" stroke="var(--teal-bright)" strokeWidth="0.6" />
+            <rect x="2" y="5" width="12" height="2" fill="var(--teal-bright)" opacity="0.15" />
+          </svg>
+        )}
+      </div>
+
+      {/* Label */}
+      <span style={{
+        color: 'var(--white)',
+        fontFamily: 'var(--font-mono)',
+        fontSize: 'clamp(9px, 0.7vw, 12px)',
+        textAlign: 'center',
+        lineHeight: '1.3',
+        wordBreak: 'break-word',
+        width: '100%',
+        userSelect: 'none',
+      }}>
+        {f.label}
+      </span>
+
+      {f.onReset && (
+        <button
+          onClick={(e) => { e.stopPropagation(); f.onReset?.() }}
+          style={{
+            padding: '2px 6px',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'clamp(9px, 0.65vw, 11px)',
+            backgroundColor: 'rgba(0,255,224,0.1)',
+            border: '1px solid rgba(0,255,224,0.3)',
+            color: 'rgba(0,255,224,0.8)',
+            cursor: 'pointer',
+            borderRadius: '2px',
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(0,255,224,0.25)'
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(0,255,224,0.1)'
+          }}
+        >
+          Reset
+        </button>
+      )}
+    </div>
+  )
+}
+
 export default function FolderWindow({
   installedFiles,
   onFileClick,
@@ -31,6 +119,7 @@ export default function FolderWindow({
   chromeBorder?: string
   chromeButtonColor?: string
 }) {
+  const WINDOW_WIDTH = '25vw'
   const [pos, setPos] = useState<{ x: number, y: number } | null>(null)
   const dragOffset = useRef<{ x: number, y: number } | null>(null)
   const onMouseMoveRef = useRef<((e: MouseEvent) => void) | null>(null)
@@ -76,7 +165,7 @@ export default function FolderWindow({
       onMouseDown={onFocus}
       style={{
         ...positionStyle,
-        width: '25vw',
+        width: WINDOW_WIDTH,
         height: '45vh',
         zIndex,
         display: 'flex',
@@ -136,7 +225,7 @@ export default function FolderWindow({
             style={{
               background: 'none',
               border: 'none',
-              color: chromeButtonColor || 'var(--yellow)',
+              color: 'var(--yellow)',
               cursor: 'pointer',
               fontSize: 'clamp(12px, 0.9vw, 18px)',
               fontWeight: '700',
@@ -152,106 +241,33 @@ export default function FolderWindow({
       {/* Body */}
       <div style={{
         flex: 1,
-        display: 'flex',
-        flexDirection: 'column',
         backgroundColor: 'var(--black)',
         borderTop: '1px solid rgba(255,255,255,0.05)',
-        overflow: 'hidden',
+        overflow: 'hidden auto',
+        padding: '12px',
+        boxSizing: 'border-box',
       }}>
-        {/* Column headers */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 80px 80px',
-          gap: '12px',
-          padding: '10px 14px',
-          borderBottom: '1px solid rgba(0,255,224,0.35)',
-          color: 'var(--teal-bright)',
-          fontFamily: 'var(--font-mono)',
-          fontSize: 'clamp(12px, 0.9vw, 18px)',
-          fontWeight: 700,
-          letterSpacing: '0.08em',
-        }}>
-          <div>Name</div>
-          <div style={{ textAlign: 'right' }}>Type</div>
-          <div style={{ textAlign: 'right', visibility: 'hidden' }}>Action</div>
-        </div>
-
-        <div style={{ flex: 1, overflowY: 'auto' }}>
-          {installedFiles.length === 0 ? (
-            <div style={{
-              padding: '18px 14px',
-              color: 'rgba(0,255,224,0.65)',
-              fontFamily: 'var(--font-mono)',
-              fontSize: 'clamp(12px, 0.9vw, 18px)',
-              letterSpacing: '0.04em',
-            }}>
-              (empty)
-            </div>
-          ) : (
-            installedFiles.map((f) => (
-              <div
-                key={f.id}
-                onClick={() => onFileClick(f.id)}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 80px 80px',
-                  gap: '12px',
-                  padding: '10px 14px',
-                  color: 'var(--white)',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: 'clamp(12px, 0.9vw, 18px)',
-                  borderBottom: '1px solid rgba(255,255,255,0.06)',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.backgroundColor = 'rgba(0,255,224,0.12)'
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.backgroundColor = 'transparent'
-                }}
-              >
-                <div style={{ letterSpacing: '0.06em' }}>
-                  {f.label}
-                </div>
-                <div style={{ textAlign: 'right', color: 'rgba(0,255,224,0.85)' }}>
-                  {f.type}
-                </div>
-                {f.onReset ? (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      f.onReset?.()
-                    }}
-                    style={{
-                      padding: '4px 8px',
-                      fontFamily: 'var(--font-mono)',
-                      fontSize: 'clamp(11px, 0.8vw, 14px)',
-                      backgroundColor: 'rgba(0,255,224,0.1)',
-                      border: '1px solid rgba(0,255,224,0.3)',
-                      color: 'rgba(0,255,224,0.8)',
-                      cursor: 'pointer',
-                      borderRadius: '2px',
-                      transition: 'all 0.2s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(0,255,224,0.25)'
-                      ;(e.currentTarget as HTMLButtonElement).style.color = 'var(--teal-bright)'
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(0,255,224,0.1)'
-                      ;(e.currentTarget as HTMLButtonElement).style.color = 'rgba(0,255,224,0.8)'
-                    }}
-                  >
-                    Reset
-                  </button>
-                ) : (
-                  <div />
-                )}
-              </div>
-            ))
-          )}
-        </div>
+        {installedFiles.length === 0 ? (
+          <div style={{
+            padding: '18px 14px',
+            color: 'rgba(0,255,224,0.65)',
+            fontFamily: 'var(--font-mono)',
+            fontSize: 'clamp(12px, 0.9vw, 18px)',
+            letterSpacing: '0.04em',
+          }}>
+            (empty)
+          </div>
+        ) : (
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            alignContent: 'flex-start',
+          }}>
+            {installedFiles.map((f) => (
+              <FolderItem key={f.id} f={f} onFileClick={onFileClick} />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   )

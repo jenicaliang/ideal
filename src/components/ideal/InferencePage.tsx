@@ -77,6 +77,7 @@ export default function InferencePage({ onProceed }: { onProceed: () => void }) 
     const [redirect, setRedirect] = useState("")
     const [btnVisible, setBtnVisible] = useState(false)
     const [skipped, setSkipped] = useState(false)
+    const [blink, setBlink] = useState(false)
 
     useEffect(() => {
         const { value, fear, skipped } = inferFromStorage()
@@ -89,6 +90,20 @@ export default function InferencePage({ onProceed }: { onProceed: () => void }) 
         const t3 = setTimeout(() => setOptsVisible(true), 1400)
 
         return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+    }, [])
+
+    useEffect(() => {
+        const schedule = () => {
+            const wait = 2000 + Math.random() * 2000
+            setTimeout(() => {
+                setBlink(true)
+                setTimeout(() => {
+                    setBlink(false)
+                    schedule()
+                }, 150)
+            }, wait)
+        }
+        schedule()
     }, [])
 
     function handleSelect(id: string) {
@@ -138,7 +153,7 @@ export default function InferencePage({ onProceed }: { onProceed: () => void }) 
                 }}>
                     <div style={{ flexShrink: 0, marginTop: 2 }}>
                         <img
-                            src="/sprites/mito_r.png"
+                            src={blink ? "/mito_blink.png" : "/mito.png"}
                             width={40}
                             height={40}
                             style={{ display: "block", imageRendering: "pixelated" }}
@@ -189,8 +204,8 @@ export default function InferencePage({ onProceed }: { onProceed: () => void }) 
                         }}>
                             {skipped ? (
                                 <>
-                                    So you didn’t get through the resources. That’s alright.{" "}
-                                    We know you value time, and fear inefficiency. 
+                                    So you didn't get through the resources. That's alright.{" "}
+                                    We know you value time, and fear inefficiency.
                                     <br />
                                     So what do you want to do about it?
                                 </>
