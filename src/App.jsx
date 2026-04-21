@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react"
 import Desktop from './pages/Desktop'
 import BootScreen from './components/desktop/BootScreen'
 import MobileGate from "./components/MobileGate";
