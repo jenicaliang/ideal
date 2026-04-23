@@ -24,6 +24,9 @@ import DirectiveNotification from '../components/desktop/DirectiveNotification'
 import TerminalWindow from '../components/desktop/TerminalWindow'
 import JoinEnding from '../components/desktop/JoinEnding'
 
+// DEV SHORTCUT — remove before launch
+const DEV_SKIP = new URLSearchParams(window.location.search).get('skip') === 'endings'
+
 // Full-screen glitch overlay for final escape
 function FinalGlitch({ onDone }) {
   useEffect(() => {
@@ -88,15 +91,15 @@ export default function Desktop({
   enableAudio
 }) {
   const [topNote, setTopNote] = useState(null)
-  const [installedApps, setInstalledApps] = useState([])
+  const [installedApps, setInstalledApps] = useState(DEV_SKIP ? ['needs','tools','world','folder','devices','goalscorer','terminal'] : [])
   const [showNeedsWindow, setShowNeedsWindow] = useState(false)
   const [showToolsWindow, setShowToolsWindow] = useState(false)
   const [toolsZ, setToolsZ] = useState(510)
   const [toolsMinimized, setToolsMinimized] = useState(false)
-  const [idealVisible, setIdealVisible] = useState(false)
+  const [idealVisible, setIdealVisible] = useState(DEV_SKIP)
   const [idealMinimized, setIdealMinimized] = useState(false)
   const [needsMinimized, setNeedsMinimized] = useState(false)
-  const [folderVisible, setFolderVisible] = useState(false)
+  const [folderVisible, setFolderVisible] = useState(DEV_SKIP)
   const [folderMinimized, setFolderMinimized] = useState(false)
 
   const [idealClosed, setIdealClosed] = useState(false)
@@ -119,7 +122,7 @@ export default function Desktop({
   const [showGoalScorerWindow, setShowGoalScorerWindow] = useState(false)
   const [goalScorerMinimized, setGoalScorerMinimized] = useState(false)
   const [goalScorerZ, setGoalScorerZ] = useState(510)
-  const [goalScorerOpened, setGoalScorerOpened] = useState(false)
+  const [goalScorerOpened, setGoalScorerOpened] = useState(DEV_SKIP)
 
   const [showDirective, setShowDirective] = useState(false)
   const [showTerminalWindow, setShowTerminalWindow] = useState(false)
@@ -156,7 +159,7 @@ export default function Desktop({
   const [idealZ, setIdealZ] = useState(500)
   const zCounter = useRef(500)
 
-  const [theme, setTheme] = useState('teal')
+  const [theme, setTheme] = useState(DEV_SKIP ? 'red' : 'teal')
   const desktopDesaturated = idealVisible && !idealMinimized
 
   const handleJoin = useCallback(() => {

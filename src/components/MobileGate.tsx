@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 
 const MIN_WIDTH = 1024;
 const MIN_HEIGHT = 600;
+const SHARE_URL = "https://ideal-desktop.vercel.app";
 
 export default function MobileGate({ children }: { children: React.ReactNode }) {
   const [blocked, setBlocked] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const check = () => {
@@ -14,6 +16,22 @@ export default function MobileGate({ children }: { children: React.ReactNode }) 
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "IDEAL",
+          text: "Open this on a laptop or desktop.",
+          url: SHARE_URL,
+        });
+      } catch (_) {}
+    } else {
+      await navigator.clipboard.writeText(SHARE_URL);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   if (!blocked) return <>{children}</>;
 
@@ -38,8 +56,7 @@ export default function MobileGate({ children }: { children: React.ReactNode }) 
         alignItems: "center",
         gap: "1.25rem",
       }}>
-
-        {/* Monitor icon — pure CSS */}
+        {/* Monitor icon */}
         <div style={{ position: "relative", width: 64, height: 52, marginBottom: 8 }}>
           <div style={{
             width: 64, height: 40,
@@ -102,6 +119,30 @@ export default function MobileGate({ children }: { children: React.ReactNode }) 
           </p>
         </div>
 
+        {/* Share button */}
+        <button
+          onClick={handleShare}
+          style={{
+            marginTop: "0.25rem",
+            width: "100%",
+            padding: "0.75rem 1rem",
+            background: "transparent",
+            border: "1px solid #00FFE0",
+            borderRadius: 4,
+            color: "#00FFE0",
+            fontFamily: "'Reddit Mono', monospace",
+            fontSize: 11,
+            letterSpacing: "0.12em",
+            textTransform: "uppercase",
+            cursor: "pointer",
+            boxSizing: "border-box",
+            transition: "background 0.15s",
+          }}
+          onMouseEnter={e => (e.currentTarget.style.background = "rgba(0,255,224,0.07)")}
+          onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+        >
+          {copied ? "— Link Copied —" : "Send to Desktop →"}
+        </button>
       </div>
     </div>
   );

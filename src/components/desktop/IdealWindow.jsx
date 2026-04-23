@@ -13,7 +13,8 @@ import SampleDaysPage from '../ideal/SampleDaysPage'
 import CTAPage from '../ideal/CTAPage'
 import RefusePage from '../ideal/RefusePage'
 
-
+// DEV SHORTCUT — remove before launch
+const DEV_SKIP = new URLSearchParams(window.location.search).get('skip') === 'endings'
 export default function IdealWindow({
   onMinimize, onClose, onReachUncertainty, isMinimized, zIndex, onFocus,
   onOpenFolder, onDownloadCatalog, onThemeChange, chromeColor, chromeBorder,
@@ -21,7 +22,7 @@ export default function IdealWindow({
   refuseAttempt, onRefuse, onFinalEscape, needsVisited, onJoin
 }) {
   const [pos, setPos] = useState(null)
-  const [phase, setPhase] = useState(refuseAttempt > 0 ? 'refuse' : 'mitosis')
+  const [phase, setPhase] = useState(DEV_SKIP ? 'cta' : refuseAttempt > 0 ? 'refuse' : 'mitosis')
   const [showCloseWarning, setShowCloseWarning] = useState(false)
   const [loginStep, setLoginStep] = useState('headline')
   const dragOffset = useRef(null)

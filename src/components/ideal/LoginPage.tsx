@@ -9,7 +9,7 @@ function WebcamCapture({ onCaptured }: { onCaptured: (v: boolean) => void }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const loopRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const [status, setStatus] = useState<'idle' | 'active' | 'captured'>('idle')
+  const [status, setStatus] = useState<'idle' | 'active' | 'captured' | 'no-camera'>('idle')
   const NATIVE = 64
 
   function drawPlaceholder() {
@@ -88,46 +88,53 @@ function WebcamCapture({ onCaptured }: { onCaptured: (v: boolean) => void }) {
       }
       setStatus('active')
       loopRef.current = setInterval(drawPixelFrame, 80)
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'NotFoundError') {
+        setStatus('no-camera')
+        onCaptured(true)
+      } else {
+        setStatus('idle')
+      }
+    }
+  }
+
+  function capture() {
+    if (loopRef.current) clearInterval(loopRef.current)
+    drawPixelFrame()
+    const s = videoRef.current?.srcObject as MediaStream | null
+    s?.getTracks().forEach(t => t.stop())
+    if (videoRef.current) videoRef.current.srcObject = null
+    setStatus('captured')
+    onCaptured(true)
+  }
+
+  async function recapture() {
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ video: { width: 128, height: 128 }, audio: false })
+      if (videoRef.current) {
+        videoRef.current.srcObject = s
+        await videoRef.current.play()
+      }
+      setStatus('active')
+      onCaptured(false)
+      loopRef.current = setInterval(drawPixelFrame, 80)
     } catch {
       setStatus('idle')
     }
   }
 
-  function capture() {
-  if (loopRef.current) clearInterval(loopRef.current)
-  drawPixelFrame()
-  const s = videoRef.current?.srcObject as MediaStream | null
-  s?.getTracks().forEach(t => t.stop())
-  if (videoRef.current) videoRef.current.srcObject = null
-  setStatus('captured')
-  onCaptured(true)
-}
-
-  async function recapture() {
-  try {
-    const s = await navigator.mediaDevices.getUserMedia({ video: { width: 128, height: 128 }, audio: false })
-    if (videoRef.current) {
-      videoRef.current.srcObject = s
-      await videoRef.current.play()
-    }
-    setStatus('active')
-    onCaptured(false)
-    loopRef.current = setInterval(drawPixelFrame, 80)
-  } catch {
-    setStatus('idle')
-  }
-}
-
   const statusText = {
     idle: 'Camera inactive.',
     active: 'Camera active.',
     captured: 'Identity captured.',
+    'no-camera': 'No camera detected.',
   }[status]
 
   const statusColor = {
     idle: css('--mid'),
     active: css('--ink'),
     captured: css('--red'),
+    'no-camera': css('--mid'),
   }[status]
 
   return (
@@ -190,6 +197,19 @@ function WebcamCapture({ onCaptured }: { onCaptured: (v: boolean) => void }) {
       }}>
         {statusText}
       </p>
+      {status === 'no-camera' && (
+        <p style={{
+          margin: 0,
+          fontFamily: css('--mono'),
+          fontSize: css('--size-label'),
+          color: css('--mid'),
+          letterSpacing: '0.1em',
+          textAlign: 'center',
+          lineHeight: css('--lh-body'),
+        }}>
+          That's okay. You may proceed.
+        </p>
+      )}
       <div style={{ display: 'flex', gap: css('--space-3') }}>
         {status === 'idle' && (
           <PixelButton onClick={activate}>Activate camera</PixelButton>
@@ -257,18 +277,18 @@ export default function LoginPage({ onComplete, onCancel, initialStep = 'headlin
   }, [])
 
   function handleReady() {
-  if (!captured) {
-    setErrorVisible(true)
-    if (errorTimer.current) clearTimeout(errorTimer.current)
-    errorTimer.current = setTimeout(() => setErrorVisible(false), 2800)
-    return
+    if (!captured) {
+      setErrorVisible(true)
+      if (errorTimer.current) clearTimeout(errorTimer.current)
+      errorTimer.current = setTimeout(() => setErrorVisible(false), 2800)
+      return
+    }
+    const video = document.querySelector('video') as HTMLVideoElement | null
+    const s = video?.srcObject as MediaStream | null
+    s?.getTracks().forEach(t => t.stop())
+    onComplete()
   }
-  // stop any lingering stream before navigating
-  const video = document.querySelector('video') as HTMLVideoElement | null
-  const s = video?.srcObject as MediaStream | null
-  s?.getTracks().forEach(t => t.stop())
-  onComplete()
-}
+
   return (
     <div style={{
       width: '100%',
