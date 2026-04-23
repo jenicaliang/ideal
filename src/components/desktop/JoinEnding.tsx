@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 
 const IDEAL_OFF_WHITE = '#f5f3ef'
 const IDEAL_INK = '#1e1e1e'
@@ -151,7 +151,7 @@ function IdealtaskBar({ onAbout }: { onAbout: () => void }) {
         }}>
           {time}
         </span>
-        
+
         {/* Power button */}
         <button
           onClick={handlePower}
@@ -176,19 +176,19 @@ function IdealtaskBar({ onAbout }: { onAbout: () => void }) {
           </svg>
         </button>
 
-        
       </div>
     </>
   )
 }
 
-export default function JoinEnding({ onAbout }: { onAbout: () => void }) {
+export default function JoinEnding({ onAbout, fadeIn }: { onAbout: () => void, fadeIn?: boolean }) {
+  const [mounted, setMounted] = useState(false)
   const [directiveVisible, setDirectiveVisible] = useState(false)
 
   useEffect(() => {
-    // Directive box appears after a beat — the desktop clearing is handled by Desktop.tsx
-    const t = setTimeout(() => setDirectiveVisible(true), 400)
-    return () => clearTimeout(t)
+    const raf = requestAnimationFrame(() => setMounted(true))
+    const t = setTimeout(() => setDirectiveVisible(true), 1200)
+    return () => { cancelAnimationFrame(raf); clearTimeout(t) }
   }, [])
 
   return (
@@ -202,6 +202,8 @@ export default function JoinEnding({ onAbout }: { onAbout: () => void }) {
       alignItems: 'center',
       justifyContent: 'center',
       paddingBottom: 40,
+      opacity: fadeIn ? (mounted ? 1 : 0) : 1,
+      transition: fadeIn ? 'opacity 1.2s ease' : undefined,
     }}>
       <div style={{
         opacity: directiveVisible ? 1 : 0,

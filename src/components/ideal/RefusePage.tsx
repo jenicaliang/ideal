@@ -25,14 +25,14 @@ const MESSAGES = [
     escapeLabel: "I'm not interested.",
   },
   {
-    label: "We noticed",
+    label: "Hey again",
     heading: "We noticed you keep leaving.",
     body: "That's okay.",
-    escapeLabel: "I want to leave.",
+    escapeLabel: "I want to exit.",
   },
 ]
 
-const GLITCH_CHARS = "!@#$%^&*<>[]{}|\\/?;:~`"
+const GLITCH_CHARS = "▓▒░█▄▀■□▪▫●◆▲▼◀▶◉⊗≠∞§¶"
 
 function glitchStr(str: string, intensity: number): string {
   return str.split("").map(c => {
@@ -43,10 +43,11 @@ function glitchStr(str: string, intensity: number): string {
   }).join("")
 }
 
-export default function RefusePage({ attempt, onProceed, onEscape, onJoin}: RefusePageProps) {
+export default function RefusePage({ attempt, onProceed, onEscape, onJoin }: RefusePageProps) {
   const [visible, setVisible] = useState(false)
   const [glitching, setGlitching] = useState(false)
   const [glitchText, setGlitchText] = useState("")
+  const [showHint, setShowHint] = useState(false)
   const [escapeBlocked, setEscapeBlocked] = useState(false)
   const glitchRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const isThird = attempt >= 3
@@ -67,37 +68,52 @@ export default function RefusePage({ attempt, onProceed, onEscape, onJoin}: Refu
     if (escapeBlocked) return
     setEscapeBlocked(true)
 
-    // Small delay before glitch starts so the click registers visually
     setTimeout(() => {
       setGlitching(true)
-      let frame = 0
-      const totalFrames = 50 // ~2.5s at 50ms
-      const revealText = "right click the icon"
+
+      const REVEAL_TEXT = "right click the icon"
+      const TICK = 40
+
+      // Phase durations in ms
+      const PHASE_NOISE    = 800
+      const PHASE_RESOLVE  = 500
+      const PHASE_LEGIBLE  = 1800
+      const PHASE_CLOSE    = 500
+      const total = PHASE_NOISE + PHASE_RESOLVE + PHASE_LEGIBLE + PHASE_CLOSE
+
+      let elapsed = 0
+      let hintShown = false
 
       glitchRef.current = setInterval(() => {
-        frame++
-        const progress = frame / totalFrames
+        elapsed += TICK
 
-        if (progress < 0.3) {
-          setGlitchText(glitchStr(revealText, 0.95))
-        } else if (progress < 0.5) {
-          setGlitchText(glitchStr(revealText, 0.7))
-        } else if (progress < 0.65) {
-          // Legible window
-          setGlitchText(revealText)
-        } else if (progress < 0.8) {
-          setGlitchText(glitchStr(revealText, 0.5))
+        if (elapsed <= PHASE_NOISE) {
+          setGlitchText(glitchStr(REVEAL_TEXT, 0.95))
+          setShowHint(false)
+        } else if (elapsed <= PHASE_NOISE + PHASE_RESOLVE) {
+          const p = (elapsed - PHASE_NOISE) / PHASE_RESOLVE
+          setGlitchText(glitchStr(REVEAL_TEXT, 0.92 * (1 - p)))
+          setShowHint(false)
+        } else if (elapsed <= PHASE_NOISE + PHASE_RESOLVE + PHASE_LEGIBLE) {
+          if (!hintShown) {
+            hintShown = true
+            setShowHint(true)
+            setGlitchText(REVEAL_TEXT)
+          }
         } else {
-          setGlitchText(glitchStr(revealText, 0.95))
+          const p = (elapsed - PHASE_NOISE - PHASE_RESOLVE - PHASE_LEGIBLE) / PHASE_CLOSE
+          setShowHint(false)
+          setGlitchText(glitchStr(REVEAL_TEXT, Math.min(p * 1.4, 0.95)))
         }
 
-        if (frame >= totalFrames) {
+        if (elapsed >= total) {
           clearInterval(glitchRef.current!)
           setGlitching(false)
           setGlitchText("")
-          onEscape() // close window after glitch
+          setShowHint(false)
+          onEscape()
         }
-      }, 50)
+      }, TICK)
     }, 150)
   }
 
@@ -200,33 +216,45 @@ export default function RefusePage({ attempt, onProceed, onEscape, onJoin}: Refu
         {msg.escapeLabel}
       </button>
 
-      {/* Glitch text overlay — appears during final escape sequence */}
+      {/* Full-overlay glitch — takes over the whole IdealWindow during final escape */}
       {glitching && (
         <div style={{
           position: "absolute",
-          bottom: "20%",
-          left: "50%",
-          transform: "translateX(-50%)",
-          fontFamily: css("--mono"),
-          fontSize: 13,
-          color: "rgba(255,255,255,0.5)",
-          letterSpacing: "0.1em",
-          whiteSpace: "nowrap",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: showHint ? "rgba(0,0,0,0.94)" : "rgba(0,0,0,0.6)",
+          transition: "background-color 0.1s",
+          zIndex: 10,
           pointerEvents: "none",
-          animation: "glitchFlicker 0.08s infinite",
         }}>
-          {glitchText}
+          {/* scanlines during noise phases only */}
+          {!showHint && (
+            <div style={{
+              position: "absolute",
+              inset: 0,
+              background: "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,255,224,0.035) 3px, rgba(0,255,224,0.035) 4px)",
+              pointerEvents: "none",
+            }} />
+          )}
+          <span style={{
+            fontFamily: css("--mono"),
+            fontSize: showHint ? 20 : 15,
+            letterSpacing: showHint ? "0.3em" : "0.06em",
+            color: showHint ? "var(--teal-bright, #00FFE0)" : "rgba(0,255,224,0.55)",
+            textTransform: "uppercase",
+            userSelect: "none",
+            whiteSpace: "nowrap",
+            transition: "font-size 0.12s, letter-spacing 0.12s, color 0.12s",
+            textShadow: showHint
+              ? "0 0 18px rgba(0,255,224,0.9), 0 0 40px rgba(0,255,224,0.45)"
+              : "none",
+          }}>
+            {glitchText}
+          </span>
         </div>
       )}
-
-      <style>{`
-        @keyframes glitchFlicker {
-          0%  { opacity: 1; }
-          49% { opacity: 1; }
-          50% { opacity: 0.2; }
-          100%{ opacity: 1; }
-        }
-      `}</style>
     </div>
   )
 }

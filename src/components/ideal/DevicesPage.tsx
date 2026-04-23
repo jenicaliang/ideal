@@ -224,17 +224,28 @@ function DeviceModel({ modelSrc, letter, visible, deviceId }: {
 export default function DevicesPage() {
   const [idx, setIdx] = useState(0)
   const [fading, setFading] = useState(false)
+  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Clean up any in-flight navigation timer on unmount
+  useEffect(() => {
+    return () => {
+      if (navTimerRef.current) clearTimeout(navTimerRef.current)
+    }
+  }, [])
 
   const device = DEVICES[idx]
 
   function navigate(dir: "prev" | "next") {
+    // Cancel any in-flight transition before starting a new one
+    if (navTimerRef.current) clearTimeout(navTimerRef.current)
     setFading(true)
-    setTimeout(() => {
+    navTimerRef.current = setTimeout(() => {
       setIdx(dir === "next"
         ? (idx + 1) % DEVICES.length
         : (idx - 1 + DEVICES.length) % DEVICES.length
       )
       setFading(false)
+      navTimerRef.current = null
     }, 180)
   }
 
@@ -351,7 +362,9 @@ export default function DevicesPage() {
             border: "none",
             cursor: "pointer",
             padding: 0,
-            visibility: idx === 0 ? 'hidden' : 'visible',
+            opacity: (fading || idx === 0) ? 0 : 1,
+            pointerEvents: (fading || idx === 0) ? 'none' : 'auto',
+            transition: "opacity 0.18s ease",
           }}
         >
           ← Prev
@@ -377,7 +390,9 @@ export default function DevicesPage() {
             border: "none",
             cursor: "pointer",
             padding: 0,
-            visibility: idx === DEVICES.length - 1 ? 'hidden' : 'visible',
+            opacity: (fading || idx === DEVICES.length - 1) ? 0 : 1,
+            pointerEvents: (fading || idx === DEVICES.length - 1) ? 'none' : 'auto',
+            transition: "opacity 0.18s ease",
           }}
         >
           Next →

@@ -24,7 +24,6 @@ function FolderItem({ f, onFileClick }: { f: InstalledFile, onFileClick: (id: st
         boxSizing: 'border-box',
       }}
     >
-      {/* Clickable folder icon */}
       <div style={{ width: '100%', display: 'flex', justifyContent: 'flex-start', marginLeft: '33px' }}>
         {hovered ? (
           <svg
@@ -55,7 +54,6 @@ function FolderItem({ f, onFileClick }: { f: InstalledFile, onFileClick: (id: st
         )}
       </div>
 
-      {/* Label */}
       <span style={{
         color: 'var(--white)',
         fontFamily: 'var(--font-mono)',
@@ -107,6 +105,7 @@ export default function FolderWindow({
   chromeColor,
   chromeBorder,
   chromeButtonColor,
+  onContextMenu,
 }: {
   installedFiles: InstalledFile[]
   onFileClick: (id: string) => void
@@ -118,6 +117,7 @@ export default function FolderWindow({
   chromeColor?: string
   chromeBorder?: string
   chromeButtonColor?: string
+  onContextMenu?: (e: React.MouseEvent) => void
 }) {
   const WINDOW_WIDTH = '25vw'
   const [pos, setPos] = useState<{ x: number, y: number } | null>(null)
@@ -163,6 +163,7 @@ export default function FolderWindow({
   return (
     <div
       onMouseDown={onFocus}
+      onContextMenu={onContextMenu}
       style={{
         ...positionStyle,
         width: WINDOW_WIDTH,

@@ -46,14 +46,13 @@ const FADE_ZONE = 0.22
 const N = DIRECTIVES.length
 
 const INTRO_SIZE = 600
-const OUTRO_SIZE = 800  // longer so outro has room to settle
+const OUTRO_SIZE = 800
 
 function directiveCenter(i: number): number {
   return INTRO_SIZE + SLOT_SIZE / 2 + i * (SLOT_SIZE - OVERLAP)
 }
 
 const DIRECTIVES_END = directiveCenter(N - 1) + SLOT_SIZE / 2
-// Stop scrolling once outro is fully settled
 const TOTAL_SCROLL = DIRECTIVES_END + OUTRO_SIZE
 
 function getDirectiveState(i: number, scroll: number) {
@@ -70,7 +69,6 @@ function getDirectiveState(i: number, scroll: number) {
 
 function getClockState(scroll: number): { time: string; red: boolean; opacity: number } {
   const introProgress = Math.min(1, scroll / INTRO_SIZE)
-  // Clock fully gone by 20% into outro
   const outroStart = DIRECTIVES_END
   const outroProgress = Math.max(0, (scroll - outroStart) / (OUTRO_SIZE * 0.2))
   const clockOpacity = Math.max(0, Math.min(introProgress, 1 - outroProgress))
@@ -130,7 +128,6 @@ export default function SampleDaysPage({ onProceed, onBack }: {
     setClockOpacity(clock.opacity)
 
     setIsDone(newScroll > DIRECTIVES_END + OUTRO_SIZE * 0.3)
-
     rafRef.current = requestAnimationFrame(animateScroll)
   }, [])
 
@@ -170,18 +167,15 @@ export default function SampleDaysPage({ onProceed, onBack }: {
     }
   }, [])
 
-  // Intro: fades out and drifts up as you scroll
   const introProgress = Math.min(1, scroll / INTRO_SIZE)
   const introOpacity = Math.max(0, 1 - introProgress / 0.5)
   const introY = -introProgress * 40
 
-  // Outro: fades in and drifts up to center, then stops
   const outroProgress = Math.max(0, (scroll - DIRECTIVES_END) / OUTRO_SIZE)
-  const outroEased = Math.min(1, outroProgress / 0.5) // fully settled by halfway through outro zone
+  const outroEased = Math.min(1, outroProgress / 0.5)
   const outroOpacity = outroEased
-  const outroY = 30 - outroEased * 30 // starts 30px below, settles at 0
+  const outroY = 30 - outroEased * 30
 
-  // Progress dots
   const passedCount = DIRECTIVES.filter((_, i) => {
     const center = directiveCenter(i)
     const slotStart = center - SLOT_SIZE / 2
@@ -203,25 +197,7 @@ export default function SampleDaysPage({ onProceed, onBack }: {
       transition: "opacity 0.5s ease",
     }}>
 
-      {/* Clock */}
-      <div style={{
-        position: "absolute",
-        top: "50%",
-        right: 48,
-        transform: "translateY(-50%)",
-        fontFamily: css("--mono"),
-        fontSize: 28,
-        letterSpacing: "0.06em",
-        color: clockRed ? "var(--red)" : "rgba(255,255,255,0.25)",
-        opacity: clockOpacity,
-        transition: "color 0.2s ease",
-        userSelect: "none",
-        zIndex: 10,
-      }}>
-        {clockTime}
-      </div>
-
-      {/* Intro screen */}
+      {/* Intro */}
       {introOpacity > 0 && (
         <div style={{
           position: "absolute",
@@ -234,8 +210,7 @@ export default function SampleDaysPage({ onProceed, onBack }: {
           transform: `translateY(${introY}px)`,
           zIndex: 5,
           pointerEvents: "none",
-          padding: "0 12% 0 12%",
-          textAlign: "left",
+          padding: "0 12%",
           boxSizing: "border-box",
         }}>
           <p style={{
@@ -261,7 +236,7 @@ export default function SampleDaysPage({ onProceed, onBack }: {
         </div>
       )}
 
-      {/* Directives layer */}
+      {/* Directives — directive text + clock together as one centered row */}
       <div style={{
         position: "absolute",
         inset: 0,
@@ -277,39 +252,62 @@ export default function SampleDaysPage({ onProceed, onBack }: {
               style={{
                 position: "absolute",
                 top: "50%",
-                left: "12%",
-                right: "12%",
-                maxWidth: 650,
-                transform: `translateY(calc(-50% + ${state.translateY}px))`,
+                left: "50%",
+                width: "72%",
+                maxWidth: 890,
+                transform: `translateX(-50%) translateY(calc(-50% + ${state.translateY}px))`,
                 opacity: state.opacity,
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                gap: 48,
               }}
             >
-              <p style={{
-                fontFamily: css("--sans"),
-                fontSize: 30,
-                fontWeight: 300,
-                color: "#ffffff",
-                margin: "0 0 14px 0",
-                lineHeight: 1.35,
+              {/* Directive text — takes remaining space */}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{
+                  fontFamily: css("--sans"),
+                  fontSize: 30,
+                  fontWeight: 300,
+                  color: "#ffffff",
+                  margin: "0 0 14px 0",
+                  lineHeight: 1.35,
+                }}>
+                  {d.directive}
+                </p>
+                <p style={{
+                  fontFamily: css("--sans"),
+                  fontSize: 18,
+                  fontWeight: 300,
+                  color: "rgba(255,255,255,0.35)",
+                  margin: 0,
+                  lineHeight: 1.65,
+                }}>
+                  {d.rationale}
+                </p>
+              </div>
+
+              {/* Clock — fixed width, right side of row */}
+              <div style={{
+                flexShrink: 0,
+                width: 100,
+                textAlign: "right",
+                fontFamily: css("--mono"),
+                fontSize: 28,
+                letterSpacing: "0.06em",
+                color: clockRed ? "var(--red)" : "rgba(255,255,255,0.25)",
+                opacity: clockOpacity,
+                transition: "color 0.2s ease",
+                userSelect: "none",
               }}>
-                {d.directive}
-              </p>
-              <p style={{
-                fontFamily: css("--sans"),
-                fontSize: 15,
-                fontWeight: 300,
-                color: "rgba(255,255,255,0.35)",
-                margin: 0,
-                lineHeight: 1.65,
-              }}>
-                {d.rationale}
-              </p>
+                {clockTime}
+              </div>
             </div>
           )
         })}
       </div>
 
-      {/* Scroll hint — always visible during directive flow */}
+      {/* Scroll hint */}
       {introOpacity === 0 && outroOpacity === 0 && (
         <div style={{
           position: "absolute",
@@ -326,7 +324,7 @@ export default function SampleDaysPage({ onProceed, onBack }: {
         </div>
       )}
 
-      {/* Outro screen */}
+      {/* Outro */}
       {outroOpacity > 0 && (
         <div style={{
           position: "absolute",
@@ -339,8 +337,7 @@ export default function SampleDaysPage({ onProceed, onBack }: {
           transform: `translateY(${outroY}px)`,
           zIndex: 5,
           pointerEvents: "none",
-          padding: "0 12% 0 12%",
-          textAlign: "left",
+          padding: "0 12%",
           boxSizing: "border-box",
         }}>
           <p style={{
@@ -355,7 +352,7 @@ export default function SampleDaysPage({ onProceed, onBack }: {
           </p>
           <p style={{
             fontFamily: css("--sans"),
-            fontSize: 15,
+            fontSize: 18,
             fontWeight: 300,
             color: "rgba(255,255,255,0.35)",
             margin: 0,

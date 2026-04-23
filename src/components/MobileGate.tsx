@@ -98,26 +98,9 @@ export default function MobileGate({ children }: { children: React.ReactNode }) 
           fontFamily: "'DM Sans', sans-serif",
           fontWeight: 400,
         }}>
-          This desktop environment wasn't designed for a screen this size. Open it on a laptop or desktop to continue.
+          This environment wasn't designed for a screen this size. Open it on a laptop or desktop to continue.
         </p>
 
-        <div style={{
-          marginTop: "0.5rem",
-          padding: "0.75rem 1rem",
-          border: "1px solid #1a4a5c",
-          borderRadius: 4,
-          width: "100%",
-          boxSizing: "border-box",
-        }}>
-          <p style={{
-            fontSize: 10,
-            color: "#4a7a8a",
-            letterSpacing: "0.1em",
-            margin: 0,
-          }}>
-            MIN RESOLUTION — 1024 × 600
-          </p>
-        </div>
 
         {/* Share button */}
         <button

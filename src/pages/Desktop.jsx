@@ -108,7 +108,7 @@ export default function Desktop({
   const [toolsResetKey, setToolsResetKey] = useState(0)
   const [needsResetKey, setNeedsResetKey] = useState(0)
   const [needsZ, setNeedsZ] = useState(510)
-  const [needsVisited, setNeedsVisited] = useState(false)
+  const [needsVisited, setNeedsVisited] = useState(DEV_SKIP)
 
   const [showWorldWindow, setShowWorldWindow] = useState(false)
   const [worldMinimized, setWorldMinimized] = useState(false)
@@ -133,13 +133,19 @@ export default function Desktop({
   const [refuseAttempt, setRefuseAttempt] = useState(0)
   const [iconContextMenu, setIconContextMenu] = useState(null)
   const [iconRemoved, setIconRemoved] = useState(false)
+  const [folderRemoved, setFolderRemoved] = useState(false)
+  const [folderContextMenu, setFolderContextMenu] = useState(null)
   const [showFinalGlitch, setShowFinalGlitch] = useState(false)
+  const [showRefuseEndMessage, setShowRefuseEndMessage] = useState(false)
   const refuseTimerRef = useRef(null)
 
   // Join ending sequence
   const [joiningEnding, setJoiningEnding] = useState(false)
   const [joinPhase, setJoinPhase] = useState(0)
   const [joinDone, setJoinDone] = useState(false)
+  const [showJoinMessage, setShowJoinMessage] = useState(false)
+  const [joinMessageFading, setJoinMessageFading] = useState(false)
+  const [shakeIntensity, setShakeIntensity] = useState(0)
 
   // Visibility flags driven by joinPhase
   const showBg = joinPhase < 1
@@ -176,12 +182,29 @@ export default function Desktop({
     setShowDirective(false)
 
     setJoiningEnding(true)
+    setShowJoinMessage(true)
+
+    setTimeout(() => setJoinMessageFading(true), 5000)
+    setTimeout(() => {
+      setShowJoinMessage(false)
+      setJoinMessageFading(false)
+    }, 5500)
+
+    const FLICKER_START = 5500
+    const PHASE_DURATION = 1200
+
     const phases = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-  phases.forEach((phase, i) => {
-    setTimeout(() => setJoinPhase(phase), 600 + i * 1200)
-  })
-  setTimeout(() => setJoinDone(true), 600 + phases.length * 1200 + 400)
-}, [])
+    phases.forEach((phase, i) => {
+      setTimeout(() => {
+        setJoinPhase(phase)
+        setShakeIntensity((i + 1) / phases.length)
+      }, FLICKER_START + i * PHASE_DURATION)
+    })
+
+    const endTime = FLICKER_START + phases.length * PHASE_DURATION
+    setTimeout(() => setShakeIntensity(0), endTime)
+    setTimeout(() => setJoinDone(true), endTime + 400)
+  }, [])
 
   const handleAccept = useCallback(() => {
     setIdealVisible(true)
@@ -269,11 +292,35 @@ export default function Desktop({
     setIdealClosed(false)
     setRefuseAttempt(0)
     if (refuseTimerRef.current) clearTimeout(refuseTimerRef.current)
-  }, [])
+    if (folderRemoved) {
+      setTimeout(() => {
+        setShowRefuseEndMessage(true)
+        setTimeout(() => setShowRefuseEndMessage(false), 7000)
+      }, 400)
+    }
+  }, [folderRemoved])
+
+  const handleRemoveFolder = useCallback(() => {
+    setFolderContextMenu(null)
+    setFolderVisible(false)
+    setFolderMinimized(false)
+    setFolderRemoved(true)
+    if (iconRemoved) {
+      setTimeout(() => {
+        setShowRefuseEndMessage(true)
+        setTimeout(() => setShowRefuseEndMessage(false), 7000)
+      }, 400)
+    }
+  }, [iconRemoved])
 
   const handleIconContextMenu = useCallback((e) => {
     e.preventDefault()
     setIconContextMenu({ x: e.clientX, y: e.clientY })
+  }, [])
+
+  const handleFolderContextMenu = useCallback((e) => {
+    e.preventDefault()
+    setFolderContextMenu({ x: e.clientX, y: e.clientY })
   }, [])
 
   const folderInstalledFiles = useMemo(() => [
@@ -314,17 +361,27 @@ export default function Desktop({
   const chromeBorder = theme === 'red' ? 'var(--yellow)' : 'var(--teal-bright)'
   const chromeButtonColor = theme === 'red' ? '#f5f3ef' : 'var(--yellow)'
 
+  const shakeAnimation = shakeIntensity > 0
+    ? `${shakeIntensity > 0.5 ? 'shakeHard' : 'shakeGentle'} ${(0.13 - shakeIntensity * 0.06).toFixed(3)}s steps(1) infinite`
+    : undefined
+
+  const canRightClickFolder = refuseAttempt >= 3 || iconRemoved
+
   return (
     <div
       style={{
         width: '100vw',
         height: '100vh',
-        backgroundColor: joiningEnding ? '#f5f3ef' : 'var(--teal-deep)',
+        backgroundColor: joinDone ? '#f5f3ef' : joiningEnding ? '#000000' : 'var(--teal-deep)',
         transition: 'background-color 0.4s ease',
         position: 'relative',
         overflow: 'hidden',
+        animation: shakeAnimation,
       }}
-      onClick={() => iconContextMenu && setIconContextMenu(null)}
+      onClick={() => {
+        if (iconContextMenu) setIconContextMenu(null)
+        if (folderContextMenu) setFolderContextMenu(null)
+      }}
     >
       <style>{`
         @keyframes flickerOut {
@@ -333,7 +390,71 @@ export default function Desktop({
           66%  { opacity: 0.8; }
           100% { opacity: 0; }
         }
+        @keyframes shakeGentle {
+          0%   { transform: translate(0, 0) rotate(0deg); }
+          20%  { transform: translate(1px, -1px) rotate(0.1deg); }
+          40%  { transform: translate(-1px, 1px) rotate(-0.1deg); }
+          60%  { transform: translate(2px, 0px) rotate(0.05deg); }
+          80%  { transform: translate(-1px, 1px) rotate(0deg); }
+          100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        @keyframes shakeHard {
+          0%   { transform: translate(0, 0) rotate(0deg); }
+          15%  { transform: translate(-4px, 3px) rotate(-0.3deg); }
+          30%  { transform: translate(5px, -3px) rotate(0.4deg); }
+          45%  { transform: translate(-3px, 4px) rotate(-0.2deg); }
+          60%  { transform: translate(4px, -2px) rotate(0.3deg); }
+          75%  { transform: translate(-5px, 2px) rotate(-0.4deg); }
+          90%  { transform: translate(3px, -4px) rotate(0.2deg); }
+          100% { transform: translate(0, 0) rotate(0deg); }
+        }
+        @keyframes joinMsgIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        @keyframes joinMsgOut {
+          from { opacity: 1; }
+          to   { opacity: 0; }
+        }
+        @keyframes refuseEndFade {
+          0%   { opacity: 0; }
+          8%   { opacity: 1; }
+          78%  { opacity: 1; }
+          100% { opacity: 0; }
+        }
       `}</style>
+
+      {/* Join message overlay */}
+      {showJoinMessage && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 999995,
+          backgroundColor: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          pointerEvents: 'none',
+          animation: joinMessageFading
+            ? 'joinMsgOut 0.5s ease forwards'
+            : 'joinMsgIn 0.5s ease forwards',
+        }}>
+          <p style={{
+            color: '#b04a2f',
+            fontFamily: 'Arial Narrow, Arial, sans-serif',
+            fontSize: 'clamp(18px, 2vw, 36px)',
+            fontWeight: '700',
+            letterSpacing: '0.08em',
+            textAlign: 'center',
+            lineHeight: 1.8,
+            maxWidth: '60vw',
+          }}>
+            Permission received.<br />
+            Thank you for choosing IDEAL.<br />
+            We will now begin initialization.
+          </p>
+        </div>
+      )}
 
       <div style={{
         filter: desktopDesaturated ? 'grayscale(1)' : 'grayscale(0)',
@@ -344,17 +465,14 @@ export default function Desktop({
       }}>
         <div style={{ pointerEvents: 'auto' }}>
 
-          {/* Background */}
           <div style={flickerStyle(showBg)}>
             <RoomBackground />
           </div>
 
-          {/* Ticker */}
           <div style={flickerStyle(showTicker)}>
             <Ticker />
           </div>
 
-          {/* Sticky notes + NoteToSelf */}
           <div style={flickerStyle(showStickies)}>
             <StickyNote
               title="TO-DO LIST" initialX={0.26} initialY={0.37} fontSize="clamp(15px, 1vw, 24px)"
@@ -373,34 +491,28 @@ export default function Desktop({
             <NoteToSelf />
           </div>
 
-          {/* MoodSelector + LiveIndicator */}
           <div style={flickerStyle(showLiveMode)}>
             <MoodSelector />
             <LiveIndicator />
           </div>
 
-          {/* CameraLog + MusicPlayer */}
           <div style={flickerStyle(showCamMusic)}>
             <CameraLog />
             <MusicPlayer enableAudio={enableAudio} />
           </div>
 
-          {/* BreakingNews */}
           <div style={flickerStyle(showBreaking)}>
             <BreakingNews />
           </div>
 
-          {/* ColorScroller */}
           <div style={flickerStyle(showColorScr)}>
             <ColorScroller />
           </div>
 
-          {/* HabitTracker */}
           <div style={flickerStyle(showHabit)}>
             <HabitTracker />
           </div>
 
-          {/* Taskbar */}
           <div style={flickerStyle(showTaskbarEl)}>
             <Taskbar
               isMonochrome={isMonochrome} onMonochrome={onMonochrome} onAbout={onAbout}
@@ -419,11 +531,14 @@ export default function Desktop({
 
       {showAbout && <AboutWindow onClose={onCloseAbout} />}
 
-      {/* Folder icon on desktop */}
+      {/* Desktop icons + windows */}
       <div style={flickerStyle(showLauncher)}>
-        {installedApps.includes('folder') && (
+
+        {/* Folder desktop icon */}
+        {installedApps.includes('folder') && !folderRemoved && (
           <div
             onClick={() => { setFolderVisible(true); setFolderMinimized(false); zCounter.current += 1 }}
+            onContextMenu={canRightClickFolder ? handleFolderContextMenu : undefined}
             style={{ position: 'absolute', left: '55vw', top: '45vh', zIndex: 50, cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5vh', userSelect: 'none' }}
           >
             <div style={{ width: ICON_SIZE, height: ICON_SIZE, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -438,7 +553,8 @@ export default function Desktop({
           </div>
         )}
 
-        {!iconRemoved && (
+        {/* Launcher icon */}
+        {!iconRemoved && !joiningEnding && (
           <IdealLauncher
             onAccept={handleAccept}
             onDecline={() => { }}
@@ -447,6 +563,7 @@ export default function Desktop({
           />
         )}
 
+        {/* IdealWindow */}
         {idealVisible && !idealClosed && (
           <IdealWindow
             key={idealKey}
@@ -473,13 +590,15 @@ export default function Desktop({
           />
         )}
 
-        {installedApps.includes('folder') && (
+        {/* FolderWindow */}
+        {installedApps.includes('folder') && !folderRemoved && (
           <FolderWindow
             installedFiles={folderInstalledFiles} onFileClick={handleFolderFileClick}
             onClose={() => { setFolderVisible(false); setFolderMinimized(false) }}
             onFocus={() => { }} onMinimize={() => setFolderMinimized(true)}
             zIndex={FOLDER_Z} isMinimized={folderMinimized || !folderVisible}
             chromeColor={chromeColor} chromeBorder={chromeBorder} chromeButtonColor={chromeButtonColor}
+            onContextMenu={canRightClickFolder ? handleFolderContextMenu : undefined}
           />
         )}
 
@@ -509,7 +628,7 @@ export default function Desktop({
       {/* Final escape glitch */}
       {showFinalGlitch && <FinalGlitch onDone={handleFinalGlitchDone} />}
 
-      {/* Right-click context menu */}
+      {/* Launcher right-click context menu */}
       {iconContextMenu && !iconRemoved && (
         <>
           <div onClick={() => setIconContextMenu(null)} style={{ position: 'fixed', inset: 0, zIndex: 99998 }} />
@@ -529,6 +648,58 @@ export default function Desktop({
         </>
       )}
 
+      {/* Folder right-click context menu */}
+      {folderContextMenu && !folderRemoved && (
+        <>
+          <div onClick={() => setFolderContextMenu(null)} style={{ position: 'fixed', inset: 0, zIndex: 99998 }} />
+          <div style={{ position: 'fixed', left: folderContextMenu.x, top: folderContextMenu.y, zIndex: 99999, backgroundColor: '#1a1a1a', border: '1px solid rgba(255,255,255,0.12)', minWidth: 180, boxShadow: '0 4px 20px rgba(0,0,0,0.7)' }}>
+            <div style={{ padding: '8px 14px', fontFamily: 'var(--font-mono)', fontSize: 11, color: 'rgba(255,255,255,0.25)', borderBottom: '1px solid rgba(255,255,255,0.08)', letterSpacing: '0.06em' }}>
+              YOUR_IDEAL_LIFE
+            </div>
+            <button
+              onClick={handleRemoveFolder}
+              style={{ width: '100%', padding: '10px 14px', background: 'none', border: 'none', color: '#ffffff', fontFamily: 'var(--font-mono)', fontSize: 12, letterSpacing: '0.06em', textAlign: 'left', cursor: 'pointer' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'none'}
+            >
+              Remove
+            </button>
+          </div>
+        </>
+      )}
+
+      {/* Both-deleted ending flash */}
+      {showRefuseEndMessage && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 999997,
+          pointerEvents: 'none',
+          animation: 'refuseEndFade 7s ease forwards',
+        }}>
+          <p style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: 13,
+            letterSpacing: '0.18em',
+            color: 'rgba(255,255,255,0.85)',
+            textAlign: 'center',
+            textTransform: 'uppercase',
+            lineHeight: 2.4,
+            backgroundColor: 'rgba(0,0,0,0.75)',
+            padding: '15px 25px',
+          }}>
+            That's okay.<br />
+            <span style={{ color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em' }}>
+              Just know the option always stands.
+            </span>
+          </p>
+        </div>
+      )}
+
+      {/* IdealWindow close confirmation dialog */}
       {idealClosed && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 999999, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.85)' }}>
           <div style={{ width: 'clamp(300px, 34.7vw, 560px)', backgroundColor: 'var(--black)', border: '2px solid var(--teal-bright)', padding: 'clamp(20px, 2.78vw, 44px)', textAlign: 'center' }}>
